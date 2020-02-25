@@ -1,14 +1,20 @@
-package org.monjasa.interpreter.engine;
+package org.monjasa.interpreter.engine.parser;
 
+import org.monjasa.interpreter.engine.InvalidSyntaxException;
+import org.monjasa.interpreter.engine.ast.UnaryOperatorNode;
+import org.monjasa.interpreter.engine.lexer.Lexer;
+import org.monjasa.interpreter.engine.ast.AbstractNode;
+import org.monjasa.interpreter.engine.ast.BinaryOperatorNode;
+import org.monjasa.interpreter.engine.ast.NumberOperandNode;
 import org.monjasa.interpreter.engine.tokens.Token;
 import org.monjasa.interpreter.engine.tokens.TokenType;
 
-public class Interpreter {
+public class Parser {
 
     private Lexer lexer;
     private Token currentToken;
 
-    public Interpreter(Lexer lexer) {
+    public Parser(Lexer lexer) {
         this.lexer = lexer;
         this.currentToken = lexer.getNextToken();
     }
@@ -20,37 +26,45 @@ public class Interpreter {
             throw new InvalidSyntaxException();
     }
 
-    private String getTermValue() {
+    private AbstractNode getTermValue() {
 
         //
-        //      termValue : INTEGER | LEFT_PARENTHESIS interpret RIGHT_PARENTHESIS
+        //      termValue : (ADDITION | SUBTRACTION) termValue | INTEGER | LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
         //
 
-        String result = null;
+        AbstractNode node = null;
 
         Token token = currentToken;
         switch (token.getType()) {
+            case ADDITION:
+                setupCurrentToken(TokenType.ADDITION);
+                node = new UnaryOperatorNode(token, getTermValue());
+                break;
+            case SUBTRACTION:
+                setupCurrentToken(TokenType.SUBTRACTION);
+                node = new UnaryOperatorNode(token, getTermValue());
+                break;
             case INTEGER:
                 setupCurrentToken(TokenType.INTEGER);
-                result = token.getValue();
+                node = new NumberOperandNode(token);
                 break;
             case LEFT_PARENTHESIS:
                 setupCurrentToken(TokenType.LEFT_PARENTHESIS);
-                result = interpret();
+                node = getExpression();
                 setupCurrentToken(TokenType.RIGHT_PARENTHESIS);
                 break;
         }
 
-        return result;
+        return node;
     }
 
-    private String getTerm() {
+    private AbstractNode getTerm() {
 
         //
         //      term : termValue ((MULTIPLICATION | DIVISION) termValue)*
         //
 
-        String result = getTermValue();
+        AbstractNode node = getTermValue();
 
         while (Token.isTermToken(currentToken.getType())) {
 
@@ -58,25 +72,25 @@ public class Interpreter {
             switch (token.getType()) {
                 case MULTIPLICATION:
                     setupCurrentToken(TokenType.MULTIPLICATION);
-                    result = String.valueOf(Integer.parseInt(result) * Integer.parseInt(getTermValue()));
                     break;
                 case DIVISION:
                     setupCurrentToken(TokenType.DIVISION);
-                    result = String.valueOf(Integer.parseInt(result) / Integer.parseInt(getTermValue()));
                     break;
             }
+
+            node = new BinaryOperatorNode(node, token, getTermValue());
         }
 
-        return result;
+        return node;
     }
 
-    public String interpret() {
+    public AbstractNode getExpression() {
 
         //
-        //      interpret : term ((ADDITION | SUBTRACTION) term)*
+        //      expression : term ((ADDITION | SUBTRACTION) term)*
         //
 
-        String result = getTerm();
+        AbstractNode node = getTerm();
 
         while (Token.isInterpretToken(currentToken.getType())) {
 
@@ -84,15 +98,19 @@ public class Interpreter {
             switch (token.getType()) {
                 case ADDITION:
                     setupCurrentToken(TokenType.ADDITION);
-                    result = String.valueOf(Integer.parseInt(result) + Integer.parseInt(getTerm()));
                     break;
                 case SUBTRACTION:
                     setupCurrentToken(TokenType.SUBTRACTION);
-                    result = String.valueOf(Integer.parseInt(result) - Integer.parseInt(getTerm()));
                     break;
             }
+
+            node = new BinaryOperatorNode(node, token, getTerm());
         }
 
-        return result;
+        return node;
+    }
+
+    public AbstractNode parseCommand() {
+        return getExpression();
     }
 }

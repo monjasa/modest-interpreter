@@ -1,11 +1,29 @@
-package org.monjasa.interpreter.engine;
+package org.monjasa.interpreter.engine.lexer;
 
 import org.monjasa.interpreter.engine.tokens.Token;
 import org.monjasa.interpreter.engine.tokens.TokenType;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 public class Lexer {
 
     private static final char END_OF_COMMAND = 0;
+
+    private static final Map<String, Token> RESERVED_KEYWORDS;
+
+    static {
+        HashMap<String, Token> temporaryMap = new HashMap<>();
+
+        Token beginToken = new Token(TokenType.BEGIN, "BEGIN");
+        Token endToken = new Token(TokenType.END, "END");
+
+        temporaryMap.put(beginToken.getValue(), beginToken);
+        temporaryMap.put(endToken.getValue(), endToken);
+
+        RESERVED_KEYWORDS = Collections.unmodifiableMap(temporaryMap);
+    }
 
     private String command;
     private int position;
@@ -30,6 +48,10 @@ public class Lexer {
                 return new Token(TokenType.INTEGER, getIntegerString());
             }
 
+            if (Character.isLetter(currentChar)) {
+                return getIdToken();
+            }
+
             switch (currentChar) {
                 case '+':
                     advancePointer();
@@ -49,6 +71,17 @@ public class Lexer {
                 case ')':
                     advancePointer();
                     return new Token(TokenType.RIGHT_PARENTHESIS, ")");
+                case ':':
+                    if (peekCharacter() == '=');
+                    advancePointer();
+                    advancePointer();
+                    return new Token(TokenType.ASSIGN, ":=");
+                case ';':
+                    advancePointer();
+                    return new Token(TokenType.SEMICOLON, ";");
+                case '.':
+                    advancePointer();
+                    return new Token(TokenType.DOT, ".");
             }
         }
 
@@ -64,6 +97,23 @@ public class Lexer {
         }
 
         return integerString.toString();
+    }
+
+    public Token getIdToken() {
+
+        StringBuilder name = new StringBuilder();
+        while (currentChar != END_OF_COMMAND && Character.isLetterOrDigit(currentChar)) {
+            name.append(currentChar);
+            advancePointer();
+        }
+
+        return RESERVED_KEYWORDS.getOrDefault(name.toString(), new Token(TokenType.ID, name.toString()));
+    }
+
+    public char peekCharacter() {
+        int peekPosition = position + 1;
+        if (peekPosition == command.length()) return END_OF_COMMAND;
+        else return command.charAt(peekPosition);
     }
 
     public void advancePointer() {

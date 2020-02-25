@@ -1,6 +1,7 @@
 package org.monjasa.interpreter.engine.tokens;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class Token {
 
@@ -39,5 +40,10 @@ public class Token {
 
     public static boolean isTermToken(TokenType tokenType) {
         return termTokens.stream().anyMatch(type -> tokenType == type);
+    }
+
+    @Override
+    public String toString() {
+        return String.format(Locale.US, "Token: type=\"%s\"; value=\"%s\".", getType().toString(), getValue());
     }
 }
