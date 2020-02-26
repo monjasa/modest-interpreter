@@ -8,6 +8,8 @@ import org.monjasa.interpreter.engine.parser.Parser;
 import org.monjasa.interpreter.engine.tokens.Token;
 import org.monjasa.interpreter.engine.tokens.TokenType;
 
+import java.util.StringJoiner;
+
 public class Client {
 
     public static void main(String[] args) {
@@ -17,7 +19,15 @@ public class Client {
         System.out.println(interpreter.interpret());
         */
 
-        Interpreter interpreter = new Interpreter(new Parser(new Lexer("BEGIN a := 2; b := 3; c := a + b END.")));
+        StringJoiner command = new StringJoiner(" ");
+
+        command.add("do");
+        command.add("   a = 2;");
+        command.add("   b = 3;");
+        command.add("   c = b + 2 * a;");
+        command.add("end.");
+
+        Interpreter interpreter = new Interpreter(new Parser(new Lexer(command.toString())));
         interpreter.interpret();
         System.out.println(interpreter.getGlobalScope());
     }

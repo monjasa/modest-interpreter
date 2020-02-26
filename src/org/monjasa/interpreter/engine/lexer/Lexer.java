@@ -16,8 +16,8 @@ public class Lexer {
     static {
         HashMap<String, Token> temporaryMap = new HashMap<>();
 
-        Token beginToken = new Token(TokenType.BEGIN, "BEGIN");
-        Token endToken = new Token(TokenType.END, "END");
+        Token beginToken = new Token(TokenType.BEGIN, "do");
+        Token endToken = new Token(TokenType.END, "end");
 
         temporaryMap.put(beginToken.getValue(), beginToken);
         temporaryMap.put(endToken.getValue(), endToken);
@@ -71,11 +71,9 @@ public class Lexer {
                 case ')':
                     advancePointer();
                     return new Token(TokenType.RIGHT_PARENTHESIS, ")");
-                case ':':
-                    if (peekCharacter() == '=');
+                case '=':
                     advancePointer();
-                    advancePointer();
-                    return new Token(TokenType.ASSIGNMENT, ":=");
+                    return new Token(TokenType.ASSIGNMENT, "=");
                 case ';':
                     advancePointer();
                     return new Token(TokenType.SEMICOLON, ";");
