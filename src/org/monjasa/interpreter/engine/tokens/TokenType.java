@@ -4,7 +4,7 @@ public enum TokenType {
 
     BEGIN,
     END,
-    ASSIGN,
+    ASSIGNMENT,
 
     SEMICOLON,
     DOT,

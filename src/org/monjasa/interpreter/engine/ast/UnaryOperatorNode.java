@@ -5,18 +5,18 @@ import org.monjasa.interpreter.engine.tokens.Token;
 public class UnaryOperatorNode extends AbstractNode {
 
     private Token operatorToken;
-    private AbstractNode node;
+    private AbstractNode operandNode;
 
-    public UnaryOperatorNode(Token operatorToken, AbstractNode node) {
+    public UnaryOperatorNode(Token operatorToken, AbstractNode operandNode) {
         this.operatorToken = operatorToken;
-        this.node = node;
+        this.operandNode = operandNode;
     }
 
     public Token getOperatorToken() {
         return operatorToken;
     }
 
-    public AbstractNode getNode() {
-        return node;
+    public AbstractNode getOperandNode() {
+        return operandNode;
     }
 }

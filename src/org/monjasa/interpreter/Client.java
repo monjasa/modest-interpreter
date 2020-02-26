@@ -1,5 +1,7 @@
 package org.monjasa.interpreter;
 
+import org.monjasa.interpreter.engine.ast.AbstractNode;
+import org.monjasa.interpreter.engine.ast.CompoundStatementNode;
 import org.monjasa.interpreter.engine.interpreter.Interpreter;
 import org.monjasa.interpreter.engine.lexer.Lexer;
 import org.monjasa.interpreter.engine.parser.Parser;
@@ -15,11 +17,8 @@ public class Client {
         System.out.println(interpreter.interpret());
         */
 
-        Lexer lexer = new Lexer("BEGIN a := 2; END.");
-        Token currentToken = lexer.getNextToken();
-        while (currentToken.getType() != TokenType.EOF) {
-            System.out.println(currentToken);
-            currentToken = lexer.getNextToken();
-        }
+        Interpreter interpreter = new Interpreter(new Parser(new Lexer("BEGIN a := 2; b := 3; c := a + b END.")));
+        interpreter.interpret();
+        System.out.println(interpreter.getGlobalScope());
     }
 }

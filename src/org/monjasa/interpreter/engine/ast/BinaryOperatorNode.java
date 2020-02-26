@@ -2,6 +2,8 @@ package org.monjasa.interpreter.engine.ast;
 
 import org.monjasa.interpreter.engine.tokens.Token;
 
+import java.util.Locale;
+
 public class BinaryOperatorNode extends AbstractNode {
 
     private AbstractNode leftNode;
@@ -24,5 +26,10 @@ public class BinaryOperatorNode extends AbstractNode {
 
     public AbstractNode getRightNode() {
         return rightNode;
+    }
+
+    @Override
+    public String toString() {
+        return String.format(Locale.US, "%s: [%s %s %s]", super.toString(), leftNode.toString(), operatorToken.getValue(), rightNode.toString());
     }
 }

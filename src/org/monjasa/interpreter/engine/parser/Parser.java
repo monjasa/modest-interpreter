@@ -1,13 +1,13 @@
 package org.monjasa.interpreter.engine.parser;
 
 import org.monjasa.interpreter.engine.InvalidSyntaxException;
-import org.monjasa.interpreter.engine.ast.UnaryOperatorNode;
+import org.monjasa.interpreter.engine.ast.*;
 import org.monjasa.interpreter.engine.lexer.Lexer;
-import org.monjasa.interpreter.engine.ast.AbstractNode;
-import org.monjasa.interpreter.engine.ast.BinaryOperatorNode;
-import org.monjasa.interpreter.engine.ast.NumberOperandNode;
 import org.monjasa.interpreter.engine.tokens.Token;
 import org.monjasa.interpreter.engine.tokens.TokenType;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Parser {
 
@@ -26,10 +26,25 @@ public class Parser {
             throw new InvalidSyntaxException();
     }
 
+    private AbstractNode getVariable() {
+
+        //
+        //      variable : ID
+        //
+
+        AbstractNode node = new VariableNode(currentToken);
+        setupCurrentToken(TokenType.ID);
+        return node;
+    }
+
     private AbstractNode getTermValue() {
 
         //
-        //      termValue : (ADDITION | SUBTRACTION) termValue | INTEGER | LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
+        //      termValue : ADDITION termValue
+        //                  | SUBTRACTION termValue
+        //                  | INTEGER
+        //                  | LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
+        //                  | variable
         //
 
         AbstractNode node = null;
@@ -53,6 +68,8 @@ public class Parser {
                 node = getExpression();
                 setupCurrentToken(TokenType.RIGHT_PARENTHESIS);
                 break;
+            default:
+                node = getVariable();
         }
 
         return node;
@@ -84,7 +101,7 @@ public class Parser {
         return node;
     }
 
-    public AbstractNode getExpression() {
+    private AbstractNode getExpression() {
 
         //
         //      expression : term ((ADDITION | SUBTRACTION) term)*
@@ -110,7 +127,111 @@ public class Parser {
         return node;
     }
 
+    private AbstractNode getAssignmentStatement() {
+
+        //
+        //      assignmentStatement : variable ASSIGNMENT expression
+        //
+
+        AbstractNode node;
+
+        AbstractNode variable = getVariable();
+        setupCurrentToken(TokenType.ASSIGNMENT);
+        AbstractNode expression = getExpression();
+
+        node = new AssignmentOperatorNode((VariableNode) variable, expression);
+        return node;
+    }
+
+    private AbstractNode getEmptyStatement() {
+
+        //
+        //      emptyStatement :
+        //
+
+        return new EmptyOperatorNode();
+    }
+
+    private AbstractNode getStatement() {
+
+        //
+        //      statement : compoundStatement | assignmentStatement | emptyStatement
+        //
+
+        AbstractNode node;
+
+        Token token = currentToken;
+        switch (token.getType()) {
+            case BEGIN:
+                node = getCompoundStatement();
+                break;
+            case ID:
+                node = getAssignmentStatement();
+                break;
+            default:
+                node = getEmptyStatement();
+                break;
+        }
+
+        return node;
+    }
+
+    private ArrayList<AbstractNode> getStatementList() {
+
+        //
+        //      statementList : statement | statement SEMICOLON statementList
+        //
+
+        AbstractNode node = getStatement();
+
+        ArrayList<AbstractNode> statementList = new ArrayList<>();
+        statementList.add(node);
+
+        while(currentToken.getType() == TokenType.SEMICOLON) {
+            setupCurrentToken(TokenType.SEMICOLON);
+            statementList.add(getStatement());
+        }
+
+        // ???????????????????????????????????????????????????????????????
+        if (currentToken.getType() == TokenType.ID)
+            throw new RuntimeException();
+
+        return statementList;
+    }
+
+    private AbstractNode getCompoundStatement() {
+
+        //
+        //      compoundStatement : BEGIN statementList END
+        //
+
+        setupCurrentToken(TokenType.BEGIN);
+        ArrayList<AbstractNode> nodes = getStatementList();
+        setupCurrentToken(TokenType.END);
+
+        CompoundStatementNode statementsRoot = new CompoundStatementNode();
+        nodes.forEach(statementsRoot::appendChildNode);
+
+        return statementsRoot;
+    }
+
+    private AbstractNode getProgram() {
+
+        //
+        //      program : compoundStatement DOT
+        //
+
+        AbstractNode node = getCompoundStatement();
+        setupCurrentToken(TokenType.DOT);
+        return node;
+    }
+
     public AbstractNode parseCommand() {
-        return getExpression();
+
+        AbstractNode root = getProgram();
+        if (currentToken.getType() != TokenType.EOF)
+            throw new RuntimeException();
+
+        return root;
     }
 }

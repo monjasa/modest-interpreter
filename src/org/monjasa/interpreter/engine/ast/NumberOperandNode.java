@@ -13,4 +13,9 @@ public class NumberOperandNode extends AbstractNode {
     public Token getNumberToken() {
         return numberToken;
     }
+
+    @Override
+    public String toString() {
+        return numberToken.getValue();
+    }
 }

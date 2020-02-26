@@ -75,7 +75,7 @@ public class Lexer {
                     if (peekCharacter() == '=');
                     advancePointer();
                     advancePointer();
-                    return new Token(TokenType.ASSIGN, ":=");
+                    return new Token(TokenType.ASSIGNMENT, ":=");
                 case ';':
                     advancePointer();
                     return new Token(TokenType.SEMICOLON, ";");
