@@ -1,8 +1,11 @@
 package org.monjasa.interpreter.engine.ast;
 
+import org.monjasa.interpreter.engine.interpreter.Context;
 import org.monjasa.interpreter.engine.tokens.Token;
 
-public class NumberOperandNode extends AbstractNode {
+import java.util.Optional;
+
+public class NumberOperandNode extends TerminalNode {
 
     private Token numberToken;
 
@@ -10,12 +13,12 @@ public class NumberOperandNode extends AbstractNode {
         this.numberToken = numberToken;
     }
 
-    public Token getNumberToken() {
-        return numberToken;
-    }
-
     @Override
-    public String toString() {
-        return numberToken.getValue();
+    public Optional<?> interpretNode(Context context) {
+
+        // TODO : replace Integer with wild class a.k.a. ? extends Number
+        Class<?> expectedClass = Integer.class;
+
+        return numberToken.getValue(expectedClass);
     }
 }

@@ -1,9 +1,9 @@
 package org.monjasa.interpreter.engine.ast;
 
-public abstract class AbstractNode {
+import org.monjasa.interpreter.engine.interpreter.Context;
 
-    @Override
-    public String toString() {
-        return this.getClass().getSimpleName();
-    }
+import java.util.Optional;
+
+public interface AbstractNode {
+    Optional<?> interpretNode(Context context);
 }

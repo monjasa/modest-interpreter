@@ -2,26 +2,40 @@ package org.monjasa.interpreter.engine.tokens;
 
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Optional;
 
 public class Token {
 
-    private static ArrayList<TokenType> interpretTokens;
+    private static ArrayList<TokenType> expressionTokens;
     private static ArrayList<TokenType> termTokens;
 
     static {
-        interpretTokens = new ArrayList<>();
-        interpretTokens.add(TokenType.ADDITION);
-        interpretTokens.add(TokenType.SUBTRACTION);
+        expressionTokens = new ArrayList<>();
+        expressionTokens.add(TokenType.ADDITION);
+        expressionTokens.add(TokenType.SUBTRACTION);
 
         termTokens = new ArrayList<>();
         termTokens.add(TokenType.MULTIPLICATION);
         termTokens.add(TokenType.DIVISION);
     }
 
-    private TokenType type;
-    private String value;
+    public static boolean isExpressionToken(TokenType tokenType) {
+        return expressionTokens.stream().anyMatch(type -> tokenType == type);
+    }
 
-    public Token(TokenType type, String value) {
+    public static boolean isTermToken(TokenType tokenType) {
+        return termTokens.stream().anyMatch(type -> tokenType == type);
+    }
+
+    private TokenType type;
+    private Object value;
+
+    public Token(TokenType type) {
+        this.type = type;
+        this.value = null;
+    }
+
+    public Token(TokenType type, Object value) {
         this.type = type;
         this.value = value;
     }
@@ -30,20 +44,16 @@ public class Token {
         return type;
     }
 
-    public String getValue() {
-        return value;
-    }
-
-    public static boolean isInterpretToken(TokenType tokenType) {
-        return interpretTokens.stream().anyMatch(type -> tokenType == type);
-    }
-
-    public static boolean isTermToken(TokenType tokenType) {
-        return termTokens.stream().anyMatch(type -> tokenType == type);
+    public <T> Optional<T> getValue(Class<T> expectedType) {
+        if (expectedType.isInstance(value))
+            return Optional.ofNullable(expectedType.cast(value));
+        else
+            return Optional.empty();
     }
 
     @Override
     public String toString() {
-        return String.format(Locale.US, "Token: type=\"%s\"; value=\"%s\".", getType().toString(), getValue());
+        return String.format(Locale.US, "Token: type=\"%s\"; value=\"%s\".",
+                getType().toString(), getValue(Object.class));
     }
 }

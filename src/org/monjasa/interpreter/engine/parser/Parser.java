@@ -1,13 +1,12 @@
 package org.monjasa.interpreter.engine.parser;
 
-import org.monjasa.interpreter.engine.InvalidSyntaxException;
+import org.monjasa.interpreter.engine.exceptions.InvalidSyntaxException;
 import org.monjasa.interpreter.engine.ast.*;
 import org.monjasa.interpreter.engine.lexer.Lexer;
 import org.monjasa.interpreter.engine.tokens.Token;
 import org.monjasa.interpreter.engine.tokens.TokenType;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class Parser {
 
@@ -20,10 +19,11 @@ public class Parser {
     }
 
     private void setupCurrentToken(TokenType expectedTokenType) {
-        if (currentToken.getType() == expectedTokenType)
-            currentToken = lexer.getNextToken();
-        else
+
+        if (currentToken.getType() != expectedTokenType)
             throw new InvalidSyntaxException();
+
+        currentToken = lexer.getNextToken();
     }
 
     private AbstractNode getVariable() {
@@ -46,6 +46,7 @@ public class Parser {
         //                  | LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
         //                  | variable
         //
+
 
         AbstractNode node = null;
 
@@ -109,7 +110,7 @@ public class Parser {
 
         AbstractNode node = getTerm();
 
-        while (Token.isInterpretToken(currentToken.getType())) {
+        while (Token.isExpressionToken(currentToken.getType())) {
 
             Token token = currentToken;
             switch (token.getType()) {
@@ -192,10 +193,6 @@ public class Parser {
             statementList.add(getStatement());
         }
 
-        // ???????????????????????????????????????????????????????????????
-        if (currentToken.getType() == TokenType.ID)
-            throw new RuntimeException();
-
         return statementList;
     }
 
@@ -209,10 +206,7 @@ public class Parser {
         ArrayList<AbstractNode> nodes = getStatementList();
         setupCurrentToken(TokenType.END);
 
-        CompoundStatementNode statementsRoot = new CompoundStatementNode();
-        nodes.forEach(statementsRoot::appendChildNode);
-
-        return statementsRoot;
+        return new CompoundStatementNode(nodes);
     }
 
     private AbstractNode getProgram() {
@@ -228,7 +222,9 @@ public class Parser {
 
     public AbstractNode parseCommand() {
 
+        //AbstractNode root = getProgram();
         AbstractNode root = getProgram();
+
         if (currentToken.getType() != TokenType.EOF)
             throw new RuntimeException();
 

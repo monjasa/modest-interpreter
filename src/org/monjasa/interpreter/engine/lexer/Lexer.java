@@ -19,11 +19,12 @@ public class Lexer {
         Token beginToken = new Token(TokenType.BEGIN, "do");
         Token endToken = new Token(TokenType.END, "end");
 
-        temporaryMap.put(beginToken.getValue(), beginToken);
-        temporaryMap.put(endToken.getValue(), endToken);
+        temporaryMap.put(beginToken.getValue(String.class).orElseThrow(RuntimeException::new), beginToken);
+        temporaryMap.put(endToken.getValue(String.class).orElseThrow(RuntimeException::new), endToken);
 
         RESERVED_KEYWORDS = Collections.unmodifiableMap(temporaryMap);
     }
+
 
     private String command;
     private int position;
@@ -41,52 +42,28 @@ public class Lexer {
 
             if (Character.isWhitespace(currentChar)) {
                 skipWhitespaces();
-                continue;
             }
 
-            if (Character.isDigit(currentChar)) {
-                return new Token(TokenType.INTEGER, getIntegerString());
+            else if (Character.isDigit(currentChar)) {
+                // TODO : replace Integer with wild class a.k.a. ? extends Number
+                return new Token(TokenType.INTEGER, Integer.parseInt(getIntegerString()));
             }
 
-            if (Character.isLetter(currentChar)) {
+            else if (Character.isLetter(currentChar)) {
                 return getIdToken();
             }
 
-            switch (currentChar) {
-                case '+':
-                    advancePointer();
-                    return new Token(TokenType.ADDITION, "+");
-                case '-':
-                    advancePointer();
-                    return new Token(TokenType.SUBTRACTION, "-");
-                case '*':
-                    advancePointer();
-                    return new Token(TokenType.MULTIPLICATION, "*");
-                case '/':
-                    advancePointer();
-                    return new Token(TokenType.DIVISION, "/");
-                case '(':
-                    advancePointer();
-                    return new Token(TokenType.LEFT_PARENTHESIS, "(");
-                case ')':
-                    advancePointer();
-                    return new Token(TokenType.RIGHT_PARENTHESIS, ")");
-                case '=':
-                    advancePointer();
-                    return new Token(TokenType.ASSIGNMENT, "=");
-                case ';':
-                    advancePointer();
-                    return new Token(TokenType.SEMICOLON, ";");
-                case '.':
-                    advancePointer();
-                    return new Token(TokenType.DOT, ".");
+            else {
+                Token token = new Token(TokenType.getTypeByContraction(currentChar));
+                advancePointer();
+                return token;
             }
         }
 
-        return new Token(TokenType.EOF, String.valueOf(END_OF_COMMAND));
+        return new Token(TokenType.EOF);
     }
 
-    public String getIntegerString() {
+    private String getIntegerString() {
 
         StringBuilder integerString = new StringBuilder();
         while (currentChar != END_OF_COMMAND && Character.isDigit(currentChar)) {
@@ -97,7 +74,7 @@ public class Lexer {
         return integerString.toString();
     }
 
-    public Token getIdToken() {
+    private Token getIdToken() {
 
         StringBuilder name = new StringBuilder();
         while (currentChar != END_OF_COMMAND && Character.isLetterOrDigit(currentChar)) {
@@ -108,21 +85,22 @@ public class Lexer {
         return RESERVED_KEYWORDS.getOrDefault(name.toString(), new Token(TokenType.ID, name.toString()));
     }
 
-    public char peekCharacter() {
-        int peekPosition = position + 1;
-        if (peekPosition == command.length()) return END_OF_COMMAND;
-        else return command.charAt(peekPosition);
-    }
-
-    public void advancePointer() {
+    private void advancePointer() {
         position++;
         if (position == command.length()) currentChar = END_OF_COMMAND;
         else currentChar = command.charAt(position);
     }
 
-    public void skipWhitespaces() {
+    private void skipWhitespaces() {
 
         while (currentChar != END_OF_COMMAND && Character.isWhitespace(currentChar))
             advancePointer();
     }
+
+//    public char peekCharacter() {
+//        int peekPosition = position + 1;
+//        if (peekPosition == command.length()) return END_OF_COMMAND;
+//        else return command.charAt(peekPosition);
+//    }
+
 }

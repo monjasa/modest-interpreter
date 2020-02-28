@@ -1,33 +1,23 @@
 package org.monjasa.interpreter.engine.ast;
 
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.StringJoiner;
-import java.util.stream.Collectors;
+import org.monjasa.interpreter.engine.interpreter.Context;
 
-public class CompoundStatementNode extends AbstractNode {
+import java.util.ArrayList;
+import java.util.Optional;
+
+public class CompoundStatementNode extends NonTerminalNode {
 
     private ArrayList<AbstractNode> childNodes;
 
-    public CompoundStatementNode() {
-        childNodes = new ArrayList<>();
-    }
-
-    public void appendChildNode(AbstractNode node) {
-        childNodes.add(node);
-    }
-
-    public ArrayList<AbstractNode> getChildNodes() {
-        return childNodes;
+    public CompoundStatementNode(ArrayList<AbstractNode> nodeReferences) {
+        childNodes = new ArrayList<>(nodeReferences);
     }
 
     @Override
-    public String toString() {
+    public Optional<?> interpretNode(Context context) {
 
-        String result = childNodes.stream()
-                .map(node -> node.toString())
-                .collect(Collectors.joining(",\n\t"));
+        childNodes.forEach(child -> child.interpretNode(context));
 
-        return String.format(Locale.US, "%s: {%s}", super.toString(), result);
+        return Optional.empty();
     }
 }

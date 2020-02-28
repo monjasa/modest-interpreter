@@ -1,10 +1,12 @@
 package org.monjasa.interpreter.engine.ast;
 
+import org.monjasa.interpreter.engine.exceptions.UndefinedVariableException;
+import org.monjasa.interpreter.engine.interpreter.Context;
 import org.monjasa.interpreter.engine.tokens.Token;
 
-import java.util.Locale;
+import java.util.Optional;
 
-public class VariableNode extends AbstractNode {
+public class VariableNode extends TerminalNode {
 
     private Token variableToken;
 
@@ -12,12 +14,17 @@ public class VariableNode extends AbstractNode {
         this.variableToken = variableToken;
     }
 
-    public Token getVariableToken() {
-        return variableToken;
+    @Override
+    public Optional<?> interpretNode(Context context) {
+
+        String variableName = variableToken.getValue(String.class)
+                .orElseThrow(RuntimeException::new);
+
+        return Optional.ofNullable(context.getGlobalScope().get(variableName))
+                .orElseThrow(UndefinedVariableException::new);
     }
 
-    @Override
-    public String toString() {
-        return String.format(Locale.US, "%s: [%s]", super.toString(), variableToken.getValue());
+    public Token getVariableToken() {
+        return variableToken;
     }
 }
