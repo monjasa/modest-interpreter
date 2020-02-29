@@ -1,7 +1,9 @@
 package org.monjasa.interpreter.engine.parser;
 
+import com.sun.org.apache.xpath.internal.operations.Variable;
 import org.monjasa.interpreter.engine.exceptions.InvalidSyntaxException;
 import org.monjasa.interpreter.engine.ast.*;
+import org.monjasa.interpreter.engine.exceptions.MissingValueException;
 import org.monjasa.interpreter.engine.lexer.Lexer;
 import org.monjasa.interpreter.engine.tokens.Token;
 import org.monjasa.interpreter.engine.tokens.TokenType;
@@ -42,7 +44,8 @@ public class Parser {
         //
         //      termValue : ADDITION termValue
         //                  | SUBTRACTION termValue
-        //                  | INTEGER
+        //                  | INTEGER_CONST
+        //                  | FLOAT_CONST
         //                  | LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
         //                  | variable
         //
@@ -60,8 +63,12 @@ public class Parser {
                 setupCurrentToken(TokenType.SUBTRACTION);
                 node = new UnaryOperatorNode(token, getTermValue());
                 break;
-            case INTEGER:
-                setupCurrentToken(TokenType.INTEGER);
+            case INTEGER_CONST:
+                setupCurrentToken(TokenType.INTEGER_CONST);
+                node = new NumberOperandNode(token);
+                break;
+            case FLOAT_CONST:
+                setupCurrentToken(TokenType.FLOAT_CONST);
                 node = new NumberOperandNode(token);
                 break;
             case LEFT_PARENTHESIS:
@@ -79,7 +86,7 @@ public class Parser {
     private AbstractNode getTerm() {
 
         //
-        //      term : termValue ((MULTIPLICATION | DIVISION) termValue)*
+        //      term : termValue ((MULTIPLICATION | INTEGER_DIVISION | FLOAT_DIVISION) termValue)*
         //
 
         AbstractNode node = getTermValue();
@@ -91,8 +98,8 @@ public class Parser {
                 case MULTIPLICATION:
                     setupCurrentToken(TokenType.MULTIPLICATION);
                     break;
-                case DIVISION:
-                    setupCurrentToken(TokenType.DIVISION);
+                case FLOAT_DIVISION:
+                    setupCurrentToken(TokenType.FLOAT_DIVISION);
                     break;
             }
 
@@ -209,20 +216,110 @@ public class Parser {
         return new CompoundStatementNode(nodes);
     }
 
+    private AbstractNode getTypeSpecification() {
+
+        //
+        //      typeSpecification : INTEGER_TYPE
+        //                          | FLOAT_TYPE
+        //
+
+        OperandTypeNode operandTypeNode;
+
+        switch (currentToken.getType()) {
+            case INTEGER_TYPE:
+                operandTypeNode = new OperandTypeNode(currentToken);
+                setupCurrentToken(TokenType.INTEGER_TYPE);
+                break;
+            case FLOAT_TYPE:
+                operandTypeNode = new OperandTypeNode(currentToken);
+                setupCurrentToken(TokenType.FLOAT_TYPE);
+                break;
+            default:
+                throw new RuntimeException();
+        }
+
+        return operandTypeNode;
+    }
+
+    private ArrayList<VariableDeclarationNode> getVariableDeclaration() {
+
+        //
+        //      variableDeclaration: ID (COMMA ID)* COLON typeSpecification
+        //
+
+        ArrayList<VariableNode> variableNodes = new ArrayList<>();
+        variableNodes.add(new VariableNode(currentToken));
+        setupCurrentToken(TokenType.ID);
+
+        while (currentToken.getType() == TokenType.COMMA) {
+            setupCurrentToken(TokenType.COMMA);
+            variableNodes.add(new VariableNode(currentToken));
+            setupCurrentToken(TokenType.ID);
+        }
+
+        setupCurrentToken(TokenType.COLON);
+
+        OperandTypeNode typeNode = (OperandTypeNode) getTypeSpecification();
+        ArrayList<VariableDeclarationNode> declarationNodes = new ArrayList<>(variableNodes.size());
+
+        variableNodes.forEach(node -> declarationNodes.add(new VariableDeclarationNode(node, typeNode)));
+
+        return declarationNodes;
+    }
+
+    private ArrayList<VariableDeclarationNode> getAllVariableDeclarations() {
+
+        //
+        //      allVariableDeclarations : VARIABLE_DECLARATION_BLOCK (variableDeclaration SEMICOLON)+
+        //                                | empty
+        //
+
+        ArrayList<VariableDeclarationNode> declarations = new ArrayList<>();
+
+        if (currentToken.getType() == TokenType.VARIABLE_DECLARATION_BLOCK) {
+            setupCurrentToken(TokenType.VARIABLE_DECLARATION_BLOCK);
+
+            while (currentToken.getType() == TokenType.ID) {
+                declarations.addAll(getVariableDeclaration());
+                setupCurrentToken(TokenType.SEMICOLON);
+            }
+        }
+
+        return declarations;
+    }
+
+    private AbstractNode getBlock() {
+
+        //
+        //      block : allVariableDeclarations compoundStatement
+        //
+
+        ArrayList<VariableDeclarationNode> declarations = getAllVariableDeclarations();
+        CompoundStatementNode compoundStatementNode = (CompoundStatementNode) getCompoundStatement();
+
+        return new BlockNode(declarations, compoundStatementNode);
+    }
+
     private AbstractNode getProgram() {
 
         //
-        //      program : compoundStatement DOT
+        //      program : PROGRAM variable SEMICOLON block DOT
         //
 
-        AbstractNode node = getCompoundStatement();
+        setupCurrentToken(TokenType.PROGRAM);
+        String programName = ((VariableNode) getVariable()).getVariableToken().getValue(String.class)
+                .orElseThrow(MissingValueException::new);
+
+        setupCurrentToken(TokenType.SEMICOLON);
+        BlockNode blockNode = (BlockNode) getBlock();
+
+        ProgramNode programNode = new ProgramNode(programName, blockNode);
         setupCurrentToken(TokenType.DOT);
-        return node;
+        return programNode;
     }
 
     public AbstractNode parseCommand() {
 
-        //AbstractNode root = getProgram();
         AbstractNode root = getProgram();
 
         if (currentToken.getType() != TokenType.EOF)

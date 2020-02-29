@@ -1,5 +1,6 @@
 package org.monjasa.interpreter.engine.ast;
 
+import org.monjasa.interpreter.engine.exceptions.UndefinedTypeException;
 import org.monjasa.interpreter.engine.interpreter.Context;
 import org.monjasa.interpreter.engine.tokens.Token;
 
@@ -16,8 +17,18 @@ public class NumberOperandNode extends TerminalNode {
     @Override
     public Optional<?> interpretNode(Context context) {
 
-        // TODO : replace Integer with wild class a.k.a. ? extends Number
-        Class<?> expectedClass = Integer.class;
+        Class<? extends Number> expectedClass;
+
+        switch (numberToken.getType()) {
+            case INTEGER_CONST:
+                expectedClass = Integer.class;
+                break;
+            case FLOAT_CONST:
+                expectedClass = Float.class;
+                break;
+            default:
+                throw new UndefinedTypeException();
+        }
 
         return numberToken.getValue(expectedClass);
     }

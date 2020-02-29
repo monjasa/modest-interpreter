@@ -3,26 +3,33 @@ package org.monjasa.interpreter.engine.lexer;
 import org.monjasa.interpreter.engine.tokens.Token;
 import org.monjasa.interpreter.engine.tokens.TokenType;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Lexer {
 
     private static final char END_OF_COMMAND = 0;
+    private static final char COMMENT_CHARACTER = '`';
 
     private static final Map<String, Token> RESERVED_KEYWORDS;
 
     static {
         HashMap<String, Token> temporaryMap = new HashMap<>();
 
-        Token beginToken = new Token(TokenType.BEGIN, "do");
-        Token endToken = new Token(TokenType.END, "end");
+        ArrayList<Token> tokens = new ArrayList<>();
 
-        temporaryMap.put(beginToken.getValue(String.class).orElseThrow(RuntimeException::new), beginToken);
-        temporaryMap.put(endToken.getValue(String.class).orElseThrow(RuntimeException::new), endToken);
+        tokens.add(new Token(TokenType.PROGRAM, "program"));
+        tokens.add(new Token(TokenType.VARIABLE_DECLARATION_BLOCK, "let"));
 
-        RESERVED_KEYWORDS = Collections.unmodifiableMap(temporaryMap);
+        tokens.add(new Token(TokenType.INTEGER_TYPE, "int"));
+        tokens.add(new Token(TokenType.FLOAT_TYPE, "float"));
+
+        tokens.add(new Token(TokenType.BEGIN, "do"));
+        tokens.add(new Token(TokenType.END, "end"));
+
+        RESERVED_KEYWORDS = Collections.unmodifiableMap(tokens.stream()
+                .collect(Collectors.toMap(token -> token.getValue(String.class).orElseThrow(RuntimeException::new)
+                        , token -> token)));
     }
 
 
@@ -40,13 +47,16 @@ public class Lexer {
 
         while (currentChar != END_OF_COMMAND) {
 
-            if (Character.isWhitespace(currentChar)) {
+            if (currentChar == COMMENT_CHARACTER) {
+                skipComment();
+            }
+
+            else if (Character.isWhitespace(currentChar)) {
                 skipWhitespaces();
             }
 
             else if (Character.isDigit(currentChar)) {
-                // TODO : replace Integer with wild class a.k.a. ? extends Number
-                return new Token(TokenType.INTEGER, Integer.parseInt(getIntegerString()));
+                return getNumberToken();
             }
 
             else if (Character.isLetter(currentChar)) {
@@ -63,15 +73,27 @@ public class Lexer {
         return new Token(TokenType.EOF);
     }
 
-    private String getIntegerString() {
+    private Token getNumberToken() {
 
-        StringBuilder integerString = new StringBuilder();
+        StringBuilder numberString = new StringBuilder();
         while (currentChar != END_OF_COMMAND && Character.isDigit(currentChar)) {
-            integerString.append(currentChar);
+            numberString.append(currentChar);
             advancePointer();
         }
 
-        return integerString.toString();
+        if (currentChar == TokenType.DOT.getContraction()) {
+            numberString.append(currentChar);
+            advancePointer();
+
+            while (currentChar != END_OF_COMMAND && Character.isDigit(currentChar)) {
+                numberString.append(currentChar);
+                advancePointer();
+            }
+
+            return new Token(TokenType.FLOAT_CONST, Float.parseFloat(numberString.toString()));
+        }
+
+        return new Token(TokenType.INTEGER_CONST, Integer.parseInt(numberString.toString()));
     }
 
     private Token getIdToken() {
@@ -92,9 +114,14 @@ public class Lexer {
     }
 
     private void skipWhitespaces() {
-
         while (currentChar != END_OF_COMMAND && Character.isWhitespace(currentChar))
             advancePointer();
+    }
+
+    private void skipComment() {
+        while (currentChar != COMMENT_CHARACTER)
+            advancePointer();
+        advancePointer();
     }
 
 //    public char peekCharacter() {

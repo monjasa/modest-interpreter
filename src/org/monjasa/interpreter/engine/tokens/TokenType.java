@@ -3,29 +3,38 @@ package org.monjasa.interpreter.engine.tokens;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public enum TokenType {
+
+    PROGRAM('!'),
+    VARIABLE_DECLARATION_BLOCK('$'),
+    EOF('\0'),
 
     BEGIN('{'),
     END('}'),
     ASSIGNMENT('='),
 
+    COLON(':'),
     SEMICOLON(';'),
+    COMMA(','),
     DOT('.'),
 
-    INTEGER('d'),
+    INTEGER_TYPE('d'),
+    FLOAT_TYPE('f'),
+    INTEGER_CONST('1'),
+    FLOAT_CONST('2'),
+
     ID('i'),
 
     ADDITION('+'),
     SUBTRACTION('-'),
     MULTIPLICATION('*'),
-    DIVISION('/'),
+    FLOAT_DIVISION('/'),
 
     LEFT_PARENTHESIS('('),
-    RIGHT_PARENTHESIS(')'),
-
-    EOF((char) 0);
+    RIGHT_PARENTHESIS(')');
 
 
     private static final Map<Character, TokenType> TOKEN_CONTRACTIONS;
@@ -40,6 +49,16 @@ public enum TokenType {
         return TOKEN_CONTRACTIONS.getOrDefault(contraction, EOF);
     }
 
+    public static Optional<?> getDefaultValue(TokenType type) {
+        switch (type) {
+            case INTEGER_TYPE:
+                return Optional.of(0);
+            case FLOAT_TYPE:
+                return Optional.of(0.0f);
+            default:
+                throw new RuntimeException();
+        }
+    }
 
     private char contraction;
 

@@ -16,7 +16,7 @@ public class Token {
 
         termTokens = new ArrayList<>();
         termTokens.add(TokenType.MULTIPLICATION);
-        termTokens.add(TokenType.DIVISION);
+        termTokens.add(TokenType.FLOAT_DIVISION);
     }
 
     public static boolean isExpressionToken(TokenType tokenType) {
@@ -32,7 +32,7 @@ public class Token {
 
     public Token(TokenType type) {
         this.type = type;
-        this.value = null;
+        this.value = Optional.empty();
     }
 
     public Token(TokenType type, Object value) {
@@ -48,6 +48,7 @@ public class Token {
         if (expectedType.isInstance(value))
             return Optional.ofNullable(expectedType.cast(value));
         else
+            // TODO throw exception providing type checking has failed
             return Optional.empty();
     }
 
