@@ -1,6 +1,5 @@
 package org.monjasa.interpreter.engine.parser;
 
-import com.sun.org.apache.xpath.internal.operations.Variable;
 import org.monjasa.interpreter.engine.exceptions.InvalidSyntaxException;
 import org.monjasa.interpreter.engine.ast.*;
 import org.monjasa.interpreter.engine.exceptions.MissingValueException;
@@ -9,6 +8,8 @@ import org.monjasa.interpreter.engine.tokens.Token;
 import org.monjasa.interpreter.engine.tokens.TokenType;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class Parser {
 
@@ -135,6 +136,34 @@ public class Parser {
         return node;
     }
 
+    private AbstractNode getProcedureCallStatement() {
+
+        //
+        //      procedureCallStatement : ID LEFT_PARENTHESIS (expression (COMMA expression)*)? RIGHT_PARENTHESIS
+        //
+
+        Token procedureIdToken = currentToken;
+
+        String procedureName = procedureIdToken.getValue(String.class)
+                .orElseThrow(MissingValueException::new);
+        setupCurrentToken(TokenType.ID);
+        setupCurrentToken(TokenType.LEFT_PARENTHESIS);
+
+        List<AbstractNode> parameters = new ArrayList<>();
+
+        if (currentToken.getType() != TokenType.RIGHT_PARENTHESIS)
+            parameters.add(getExpression());
+
+        while (currentToken.getType() == TokenType.COMMA) {
+            setupCurrentToken(TokenType.COMMA);
+            parameters.add(getExpression());
+        }
+
+        setupCurrentToken(TokenType.RIGHT_PARENTHESIS);
+
+        return new ProcedureCallNode(procedureName, parameters, procedureIdToken);
+    }
+
     private AbstractNode getAssignmentStatement() {
 
         //
@@ -163,7 +192,10 @@ public class Parser {
     private AbstractNode getStatement() {
 
         //
-        //      statement : compoundStatement | assignmentStatement | emptyStatement
+        //      statement : compoundStatement
+        //                  | procedureCallStatement
+        //                  | assignmentStatement
+        //                  | emptyStatement
         //
 
         AbstractNode node;
@@ -174,7 +206,10 @@ public class Parser {
                 node = getCompoundStatement();
                 break;
             case ID:
-                node = getAssignmentStatement();
+                if (lexer.getCurrentChar() == TokenType.LEFT_PARENTHESIS.getContraction())
+                    node = getProcedureCallStatement();
+                else
+                    node = getAssignmentStatement();
                 break;
             default:
                 node = getEmptyStatement();
@@ -267,14 +302,58 @@ public class Parser {
         return declarationNodes;
     }
 
-    private ArrayList<VariableDeclarationNode> getAllVariableDeclarations() {
+    private List<ParameterNode> getFormalParameters() {
 
         //
-        //      allVariableDeclarations : VARIABLE_DECLARATION_BLOCK (variableDeclaration SEMICOLON)+
-        //                                | empty
+        //      formalParameters : ID (COMMA ID)* COLON typeSpecification
         //
 
-        ArrayList<VariableDeclarationNode> declarations = new ArrayList<>();
+        List<ParameterNode> parameterNodes = new ArrayList<>();
+        List<Token> parameterTokens = new ArrayList<>();
+
+        setupCurrentToken(TokenType.ID);
+        while (currentToken.getType() == TokenType.COMMA) {
+            setupCurrentToken(TokenType.COMMA);
+            parameterTokens.add(currentToken);
+            setupCurrentToken(TokenType.ID);
+        }
+
+        setupCurrentToken(TokenType.COLON);
+        OperandTypeNode typeNode = (OperandTypeNode) getTypeSpecification();
+
+        parameterTokens.forEach(token -> parameterNodes.add(new ParameterNode(new VariableNode(token), typeNode)));
+        return parameterNodes;
+    }
+
+    private List<ParameterNode> getFormalParametersList() {
+
+        //
+        //      formalParametersList : formalParameters
+        //                             | formalParameters SEMI formalParametersList
+        //
+
+        if (currentToken.getType() != TokenType.ID)
+            return Collections.emptyList();
+
+        List<ParameterNode> parameterNodes = getFormalParameters();
+
+        while (currentToken.getType() == TokenType.SEMICOLON) {
+            setupCurrentToken(TokenType.SEMICOLON);
+            parameterNodes.addAll(getFormalParameters());
+        }
+
+        return parameterNodes;
+    }
+
+    private ArrayList<DeclarationNode> getDeclarations() {
+
+        //
+        //      declarations : VARIABLE_DECLARATION_BLOCK (variableDeclaration SEMICOLON)+
+        //                     | (PROCEDURE ID (LEFT_PARENTHESIS formalParametersList RIGHT_PARENTHESIS)? SEMICOLON block SEMICOLON)*
+        //                     | empty
+        //
+
+        ArrayList<DeclarationNode> declarations = new ArrayList<>();
 
         if (currentToken.getType() == TokenType.VARIABLE_DECLARATION_BLOCK) {
             setupCurrentToken(TokenType.VARIABLE_DECLARATION_BLOCK);
@@ -285,16 +364,36 @@ public class Parser {
             }
         }
 
+        while (currentToken.getType() == TokenType.PROCEDURE) {
+            setupCurrentToken(TokenType.PROCEDURE);
+            String procedureName = currentToken.getValue(String.class)
+                    .orElseThrow(MissingValueException::new);
+            setupCurrentToken(TokenType.ID);
+
+            List<ParameterNode> parameters = Collections.emptyList();
+
+            if (currentToken.getType() == TokenType.LEFT_PARENTHESIS) {
+                setupCurrentToken(TokenType.LEFT_PARENTHESIS);
+                parameters = getFormalParametersList();
+                setupCurrentToken(TokenType.RIGHT_PARENTHESIS);
+            }
+
+            setupCurrentToken(TokenType.SEMICOLON);
+            BlockNode procedureBlockNode = (BlockNode) getBlock();
+            declarations.add(new ProcedureDeclarationNode(procedureName, parameters, procedureBlockNode));
+            setupCurrentToken(TokenType.SEMICOLON);
+        }
+
         return declarations;
     }
 
     private AbstractNode getBlock() {
 
         //
-        //      block : allVariableDeclarations compoundStatement
+        //      block : declarations compoundStatement
         //
 
-        ArrayList<VariableDeclarationNode> declarations = getAllVariableDeclarations();
+        ArrayList<DeclarationNode> declarations = getDeclarations();
         CompoundStatementNode compoundStatementNode = (CompoundStatementNode) getCompoundStatement();
 
         return new BlockNode(declarations, compoundStatementNode);

@@ -15,6 +15,11 @@ public class ProgramNode extends NonTerminalNode {
     }
 
     @Override
+    public void analyzeNodeSemantic(Context context) {
+        blockNode.analyzeNodeSemantic(context);
+    }
+
+    @Override
     public Optional<?> interpretNode(Context context) {
         blockNode.interpretNode(context);
         return Optional.empty();

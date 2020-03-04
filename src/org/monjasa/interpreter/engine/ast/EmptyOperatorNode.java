@@ -7,6 +7,11 @@ import java.util.Optional;
 public class EmptyOperatorNode extends TerminalNode {
 
     @Override
+    public void analyzeNodeSemantic(Context context) {
+
+    }
+
+    @Override
     public Optional<?> interpretNode(Context context) {
         return Optional.empty();
     }

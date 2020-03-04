@@ -7,12 +7,18 @@ import java.util.Optional;
 
 public class BlockNode extends NonTerminalNode {
 
-    private ArrayList<VariableDeclarationNode> declarationNodes;
+    private ArrayList<DeclarationNode> declarationNodes;
     private CompoundStatementNode compoundStatementNode;
 
-    public BlockNode(ArrayList<VariableDeclarationNode> declarationNodeReferences, CompoundStatementNode compoundStatementNode) {
+    public BlockNode(ArrayList<DeclarationNode> declarationNodeReferences, CompoundStatementNode compoundStatementNode) {
         this.declarationNodes = new ArrayList<>(declarationNodeReferences);
         this.compoundStatementNode = compoundStatementNode;
+    }
+
+    @Override
+    public void analyzeNodeSemantic(Context context) {
+        declarationNodes.forEach(node -> node.analyzeNodeSemantic(context));
+        compoundStatementNode.analyzeNodeSemantic(context);
     }
 
     @Override

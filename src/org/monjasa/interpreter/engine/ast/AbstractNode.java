@@ -5,5 +5,6 @@ import org.monjasa.interpreter.engine.interpreter.Context;
 import java.util.Optional;
 
 public interface AbstractNode {
+    void analyzeNodeSemantic(Context context);
     Optional<?> interpretNode(Context context);
 }

@@ -1,32 +1,48 @@
 package org.monjasa.interpreter;
 
-import org.monjasa.interpreter.engine.ast.AbstractNode;
-import org.monjasa.interpreter.engine.interpreter.Context;
+import org.monjasa.interpreter.engine.symbols.BuiltinTypeSymbol;
 import org.monjasa.interpreter.engine.interpreter.Interpreter;
 import org.monjasa.interpreter.engine.lexer.Lexer;
 import org.monjasa.interpreter.engine.parser.Parser;
+import org.monjasa.interpreter.engine.symbols.SymbolTable;
+import org.monjasa.interpreter.engine.symbols.VariableSymbol;
+import org.monjasa.interpreter.engine.tokens.TokenType;
 
-import java.util.StringJoiner;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class Client {
 
     public static void main(String[] args) {
 
-        StringJoiner command = new StringJoiner(" ");
+        try {
 
-        command.add("program MyProgram;");
-        command.add("let");
-        command.add("    x, y : int;");
-        command.add("    z, sum : float;");
-        command.add("do");
-        command.add("    x = 6;");
-        command.add("    y = 3 * (x + 1);");
-        command.add("    z = -x / 4.0;");
-        command.add("    sum = x + y + z;");
-        command.add("end.");
+            String command = new String(Files.readAllBytes(Paths.get("test/program.txt")), StandardCharsets.UTF_8);
+            Interpreter interpreter = new Interpreter(new Parser(new Lexer(command)));
+            interpreter.interpret();
 
-        Interpreter interpreter = new Interpreter(new Parser(new Lexer(command.toString())));
-        interpreter.interpret();
-        System.out.println(interpreter.getContext().getGlobalScope());
+            System.out.println(interpreter.getContext().getSymbolTable());
+            System.out.println(interpreter.getContext().getGlobalScope());
+
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+
+        /*System.out.println('\n');
+
+        System.out.println(intType + "\t" + floatType);
+
+        VariableSymbol barSymbol = new VariableSymbol("bar", intType);
+        VariableSymbol fooSymbol = new VariableSymbol("foo", floatType);
+        System.out.println(fooSymbol + "\t" + barSymbol);
+
+        SymbolTable symbolTable = new SymbolTable();
+
+        symbolTable.defineSymbol(fooSymbol);
+
+        symbolTable.defineSymbol(barSymbol);
+        System.out.println(symbolTable);*/
     }
 }

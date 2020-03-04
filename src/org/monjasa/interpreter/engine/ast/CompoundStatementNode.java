@@ -14,6 +14,11 @@ public class CompoundStatementNode extends NonTerminalNode {
     }
 
     @Override
+    public void analyzeNodeSemantic(Context context) {
+        childNodes.forEach(child -> child.analyzeNodeSemantic(context));
+    }
+
+    @Override
     public Optional<?> interpretNode(Context context) {
 
         childNodes.forEach(child -> child.interpretNode(context));

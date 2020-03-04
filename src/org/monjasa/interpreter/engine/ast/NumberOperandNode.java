@@ -15,6 +15,11 @@ public class NumberOperandNode extends TerminalNode {
     }
 
     @Override
+    public void analyzeNodeSemantic(Context context) {
+
+    }
+
+    @Override
     public Optional<?> interpretNode(Context context) {
 
         Class<? extends Number> expectedClass;

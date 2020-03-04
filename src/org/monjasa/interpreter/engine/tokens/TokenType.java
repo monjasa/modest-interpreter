@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 public enum TokenType {
 
     PROGRAM('!'),
+    PROCEDURE('p'),
     VARIABLE_DECLARATION_BLOCK('$'),
     EOF('\0'),
 

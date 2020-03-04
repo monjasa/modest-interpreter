@@ -18,6 +18,11 @@ public class UnaryOperatorNode extends NonTerminalNode {
     }
 
     @Override
+    public void analyzeNodeSemantic(Context context) {
+        operandNode.analyzeNodeSemantic(context);
+    }
+
+    @Override
     public Optional<?> interpretNode(Context context) {
 
         // TODO : replace Integer with wild class a.k.a. ? extends Number

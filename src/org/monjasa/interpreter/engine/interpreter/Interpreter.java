@@ -17,6 +17,7 @@ public class Interpreter {
 
     public Optional<?> interpret() {
         AbstractNode syntaxTreeRoot = parser.parseCommand();
+        syntaxTreeRoot.analyzeNodeSemantic(context);
         return syntaxTreeRoot.interpretNode(context);
     }
 

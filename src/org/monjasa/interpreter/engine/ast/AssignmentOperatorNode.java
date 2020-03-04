@@ -1,5 +1,6 @@
 package org.monjasa.interpreter.engine.ast;
 
+import org.monjasa.interpreter.engine.exceptions.MissingSymbolException;
 import org.monjasa.interpreter.engine.exceptions.MissingValueException;
 import org.monjasa.interpreter.engine.interpreter.Context;
 import org.monjasa.interpreter.engine.tokens.Token;
@@ -17,6 +18,22 @@ public class AssignmentOperatorNode extends NonTerminalNode {
         this.variableNode = variableNode;
         this.assignmentToken = new Token(TokenType.ASSIGNMENT, "=");
         this.operand = operand;
+    }
+
+    @Override
+    public void analyzeNodeSemantic(Context context) {
+
+        // TODO : replace try-catch within the method
+        String variableName = variableNode.getVariableToken().getValue(String.class)
+                .orElseThrow(MissingValueException::new);
+
+        try {
+            context.getSymbolTable().fetchSymbol(variableName);
+        } catch (MissingSymbolException exception) {
+            throw exception;
+        }
+
+        operand.analyzeNodeSemantic(context);
     }
 
     @Override

@@ -19,6 +19,7 @@ public class Lexer {
         ArrayList<Token> tokens = new ArrayList<>();
 
         tokens.add(new Token(TokenType.PROGRAM, "program"));
+        tokens.add(new Token(TokenType.PROCEDURE, "procedure"));
         tokens.add(new Token(TokenType.VARIABLE_DECLARATION_BLOCK, "let"));
 
         tokens.add(new Token(TokenType.INTEGER_TYPE, "int"));
@@ -48,6 +49,7 @@ public class Lexer {
         while (currentChar != END_OF_COMMAND) {
 
             if (currentChar == COMMENT_CHARACTER) {
+                advancePointer();
                 skipComment();
             }
 
@@ -119,7 +121,7 @@ public class Lexer {
     }
 
     private void skipComment() {
-        while (currentChar != COMMENT_CHARACTER)
+        while (currentChar != END_OF_COMMAND && currentChar != COMMENT_CHARACTER)
             advancePointer();
         advancePointer();
     }
@@ -130,4 +132,7 @@ public class Lexer {
 //        else return command.charAt(peekPosition);
 //    }
 
+    public char getCurrentChar() {
+        return currentChar;
+    }
 }

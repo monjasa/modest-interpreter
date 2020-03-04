@@ -20,6 +20,12 @@ public class BinaryOperatorNode extends NonTerminalNode {
     }
 
     @Override
+    public void analyzeNodeSemantic(Context context) {
+        leftNode.analyzeNodeSemantic(context);
+        rightNode.analyzeNodeSemantic(context);
+    }
+
+    @Override
     public Optional<?> interpretNode(Context context) {
 
         Number leftValue = (Number) leftNode.interpretNode(context).orElseThrow(MissingValueException::new);
