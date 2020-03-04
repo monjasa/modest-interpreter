@@ -1,6 +1,7 @@
 package org.monjasa.interpreter.engine.ast;
 
 import org.monjasa.interpreter.engine.interpreter.Context;
+import org.monjasa.interpreter.engine.semanticanalyzer.SymbolTable;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -14,8 +15,8 @@ public class CompoundStatementNode extends NonTerminalNode {
     }
 
     @Override
-    public void analyzeNodeSemantic(Context context) {
-        childNodes.forEach(child -> child.analyzeNodeSemantic(context));
+    public void analyzeNodeSemantic(SymbolTable symbolTable) {
+        childNodes.forEach(child -> child.analyzeNodeSemantic(symbolTable));
     }
 
     @Override

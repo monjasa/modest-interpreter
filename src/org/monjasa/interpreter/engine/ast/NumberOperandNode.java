@@ -2,6 +2,7 @@ package org.monjasa.interpreter.engine.ast;
 
 import org.monjasa.interpreter.engine.exceptions.UndefinedTypeException;
 import org.monjasa.interpreter.engine.interpreter.Context;
+import org.monjasa.interpreter.engine.semanticanalyzer.SymbolTable;
 import org.monjasa.interpreter.engine.tokens.Token;
 
 import java.util.Optional;
@@ -15,7 +16,7 @@ public class NumberOperandNode extends TerminalNode {
     }
 
     @Override
-    public void analyzeNodeSemantic(Context context) {
+    public void analyzeNodeSemantic(SymbolTable symbolTable) {
 
     }
 

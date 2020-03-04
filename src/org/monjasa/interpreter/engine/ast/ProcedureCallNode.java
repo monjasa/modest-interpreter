@@ -1,6 +1,7 @@
 package org.monjasa.interpreter.engine.ast;
 
 import org.monjasa.interpreter.engine.interpreter.Context;
+import org.monjasa.interpreter.engine.semanticanalyzer.SymbolTable;
 import org.monjasa.interpreter.engine.tokens.Token;
 
 import java.util.*;
@@ -18,7 +19,7 @@ public class ProcedureCallNode extends NonTerminalNode {
     }
 
     @Override
-    public void analyzeNodeSemantic(Context context) {
+    public void analyzeNodeSemantic(SymbolTable symbolTable) {
         // TODO: implement method
     }
 

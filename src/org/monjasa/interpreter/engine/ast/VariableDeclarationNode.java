@@ -1,8 +1,9 @@
 package org.monjasa.interpreter.engine.ast;
 
+import org.monjasa.interpreter.engine.exceptions.IdentifierDuplicationException;
 import org.monjasa.interpreter.engine.exceptions.MissingValueException;
 import org.monjasa.interpreter.engine.interpreter.Context;
-import org.monjasa.interpreter.engine.symbols.BuiltinTypeSymbol;
+import org.monjasa.interpreter.engine.semanticanalyzer.SymbolTable;
 import org.monjasa.interpreter.engine.symbols.Symbol;
 import org.monjasa.interpreter.engine.symbols.VariableSymbol;
 import org.monjasa.interpreter.engine.tokens.TokenType;
@@ -20,14 +21,17 @@ public class VariableDeclarationNode extends DeclarationNode {
     }
 
     @Override
-    public void analyzeNodeSemantic(Context context) {
+    public void analyzeNodeSemantic(SymbolTable symbolTable) {
 
         String variableName = variableNode.getVariableToken().getValue(String.class)
                 .orElseThrow(MissingValueException::new);
         TokenType variableType = typeNode.getTypeToken().getType();
 
-        Symbol variableTypeSymbol = context.getSymbolTable().fetchSymbol(variableType.name());
-        context.getSymbolTable().defineSymbol(new VariableSymbol(variableName, variableTypeSymbol));
+        if (symbolTable.containsSymbol(variableName))
+            throw new IdentifierDuplicationException(variableName);
+
+        Symbol variableTypeSymbol = symbolTable.fetchSymbol(variableType.name());
+        symbolTable.defineSymbol(new VariableSymbol(variableName, variableTypeSymbol));
     }
 
     @Override

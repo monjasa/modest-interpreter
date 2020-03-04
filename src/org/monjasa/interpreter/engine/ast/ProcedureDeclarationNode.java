@@ -1,6 +1,7 @@
 package org.monjasa.interpreter.engine.ast;
 
 import org.monjasa.interpreter.engine.interpreter.Context;
+import org.monjasa.interpreter.engine.semanticanalyzer.SymbolTable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +20,7 @@ public class ProcedureDeclarationNode extends DeclarationNode {
     }
 
     @Override
-    public void analyzeNodeSemantic(Context context) {
+    public void analyzeNodeSemantic(SymbolTable symbolTable) {
         // TODO: implement method
     }
 

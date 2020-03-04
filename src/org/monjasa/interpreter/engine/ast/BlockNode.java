@@ -1,6 +1,7 @@
 package org.monjasa.interpreter.engine.ast;
 
 import org.monjasa.interpreter.engine.interpreter.Context;
+import org.monjasa.interpreter.engine.semanticanalyzer.SymbolTable;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -16,9 +17,9 @@ public class BlockNode extends NonTerminalNode {
     }
 
     @Override
-    public void analyzeNodeSemantic(Context context) {
-        declarationNodes.forEach(node -> node.analyzeNodeSemantic(context));
-        compoundStatementNode.analyzeNodeSemantic(context);
+    public void analyzeNodeSemantic(SymbolTable symbolTable) {
+        declarationNodes.forEach(node -> node.analyzeNodeSemantic(symbolTable));
+        compoundStatementNode.analyzeNodeSemantic(symbolTable);
     }
 
     @Override

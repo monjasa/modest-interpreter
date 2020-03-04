@@ -10,6 +10,7 @@ public class VariableSymbol extends Symbol {
 
     @Override
     public String toString() {
-        return String.format(Locale.US, "(%s : %s)", name, type.toString());
+        return String.format(Locale.US, "%s[name = '%s'; type = '%s']",
+                this.getClass().getSimpleName(), name, type.getName());
     }
 }

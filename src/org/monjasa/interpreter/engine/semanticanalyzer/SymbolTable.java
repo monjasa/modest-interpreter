@@ -1,12 +1,11 @@
-package org.monjasa.interpreter.engine.symbols;
+package org.monjasa.interpreter.engine.semanticanalyzer;
 
-import org.monjasa.interpreter.engine.exceptions.MissingSymbolException;
+import org.monjasa.interpreter.engine.exceptions.MissingIdentifierException;
+import org.monjasa.interpreter.engine.symbols.BuiltinTypeSymbol;
+import org.monjasa.interpreter.engine.symbols.Symbol;
 import org.monjasa.interpreter.engine.tokens.TokenType;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 public class SymbolTable {
 
@@ -27,16 +26,27 @@ public class SymbolTable {
         symbols.put(symbol.getName(), symbol);
     }
 
-    public Symbol fetchSymbol(String symbolName) throws MissingSymbolException {
+    public boolean containsSymbol(String symbolName) {
+        return symbols.containsKey(symbolName);
+    }
+
+    public Symbol fetchSymbol(String symbolName) throws MissingIdentifierException {
 
 //        System.out.println(String.format(Locale.US, "Fetching %s...", symbolName));
-        if (!symbols.containsKey(symbolName)) throw new MissingSymbolException();
+        if (!symbols.containsKey(symbolName)) throw new MissingIdentifierException(symbolName);
 
         return symbols.get(symbolName);
     }
 
     @Override
     public String toString() {
-        return String.format(Locale.US, "Symbols = %s", symbols.values().toString());
+
+        StringJoiner joiner = new StringJoiner("\n");
+        joiner.add("Symbol Table contents:");
+        symbols.values().stream()
+                .map(Object::toString)
+                .forEach(joiner::add);
+
+        return joiner.toString();
     }
 }
