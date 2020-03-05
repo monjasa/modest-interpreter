@@ -4,17 +4,17 @@ import org.monjasa.interpreter.engine.ast.AbstractNode;
 
 public class SemanticAnalyzer {
 
-    private SymbolTable symbolTable;
+    private ScopedSymbolTable scopedSymbolTable;
 
     public SemanticAnalyzer() {
-        symbolTable = new SymbolTable();
+        scopedSymbolTable = new ScopedSymbolTable("global", 1);
     }
 
     public void analyzeSemantic(AbstractNode syntaxTreeRoot) {
-        syntaxTreeRoot.analyzeNodeSemantic(symbolTable);
+        syntaxTreeRoot.analyzeNodeSemantic(scopedSymbolTable);
     }
 
-    public SymbolTable getSymbolTable() {
-        return symbolTable;
+    public ScopedSymbolTable getScopedSymbolTable() {
+        return scopedSymbolTable;
     }
 }

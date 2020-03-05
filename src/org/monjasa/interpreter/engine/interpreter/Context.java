@@ -1,7 +1,5 @@
 package org.monjasa.interpreter.engine.interpreter;
 
-import org.monjasa.interpreter.engine.semanticanalyzer.SymbolTable;
-
 import java.util.HashMap;
 import java.util.Optional;
 

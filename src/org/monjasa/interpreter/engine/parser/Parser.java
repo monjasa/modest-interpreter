@@ -1,5 +1,6 @@
 package org.monjasa.interpreter.engine.parser;
 
+import com.sun.xml.internal.ws.api.model.wsdl.WSDLOutput;
 import org.monjasa.interpreter.engine.exceptions.InvalidSyntaxException;
 import org.monjasa.interpreter.engine.ast.*;
 import org.monjasa.interpreter.engine.exceptions.MissingValueException;
@@ -311,7 +312,9 @@ public class Parser {
         List<ParameterNode> parameterNodes = new ArrayList<>();
         List<Token> parameterTokens = new ArrayList<>();
 
+        parameterTokens.add(currentToken);
         setupCurrentToken(TokenType.ID);
+
         while (currentToken.getType() == TokenType.COMMA) {
             setupCurrentToken(TokenType.COMMA);
             parameterTokens.add(currentToken);

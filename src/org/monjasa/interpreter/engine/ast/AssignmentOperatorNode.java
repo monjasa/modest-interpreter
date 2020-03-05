@@ -1,9 +1,8 @@
 package org.monjasa.interpreter.engine.ast;
 
-import org.monjasa.interpreter.engine.exceptions.MissingIdentifierException;
 import org.monjasa.interpreter.engine.exceptions.MissingValueException;
 import org.monjasa.interpreter.engine.interpreter.Context;
-import org.monjasa.interpreter.engine.semanticanalyzer.SymbolTable;
+import org.monjasa.interpreter.engine.semanticanalyzer.ScopedSymbolTable;
 import org.monjasa.interpreter.engine.tokens.Token;
 import org.monjasa.interpreter.engine.tokens.TokenType;
 
@@ -22,14 +21,14 @@ public class AssignmentOperatorNode extends NonTerminalNode {
     }
 
     @Override
-    public void analyzeNodeSemantic(SymbolTable symbolTable) {
+    public void analyzeNodeSemantic(ScopedSymbolTable currentScope) {
 
         // TODO : replace try-catch within the method
         String variableName = variableNode.getVariableToken().getValue(String.class)
                 .orElseThrow(MissingValueException::new);
 
-        symbolTable.fetchSymbol(variableName);
-        operand.analyzeNodeSemantic(symbolTable);
+        currentScope.fetchSymbol(variableName);
+        operand.analyzeNodeSemantic(currentScope);
     }
 
     @Override

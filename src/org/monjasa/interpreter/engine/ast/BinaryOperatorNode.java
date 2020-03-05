@@ -3,7 +3,7 @@ package org.monjasa.interpreter.engine.ast;
 import org.monjasa.interpreter.engine.exceptions.InappropriateOperatorException;
 import org.monjasa.interpreter.engine.exceptions.MissingValueException;
 import org.monjasa.interpreter.engine.interpreter.Context;
-import org.monjasa.interpreter.engine.semanticanalyzer.SymbolTable;
+import org.monjasa.interpreter.engine.semanticanalyzer.ScopedSymbolTable;
 import org.monjasa.interpreter.engine.tokens.Token;
 
 import java.util.Optional;
@@ -21,9 +21,9 @@ public class BinaryOperatorNode extends NonTerminalNode {
     }
 
     @Override
-    public void analyzeNodeSemantic(SymbolTable symbolTable) {
-        leftNode.analyzeNodeSemantic(symbolTable);
-        rightNode.analyzeNodeSemantic(symbolTable);
+    public void analyzeNodeSemantic(ScopedSymbolTable currentScope) {
+        leftNode.analyzeNodeSemantic(currentScope);
+        rightNode.analyzeNodeSemantic(currentScope);
     }
 
     @Override
