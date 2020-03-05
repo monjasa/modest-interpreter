@@ -24,20 +24,28 @@ public class UnaryOperatorNode extends NonTerminalNode {
     }
 
     @Override
+
     public Optional<?> interpretNode(Context context) {
 
-        // TODO : replace Integer with wild class a.k.a. ? extends Number
+        // TODO: refactor with wild classes a.k.a. ?
 
-        int operandValue = ((Optional<Integer>) operandNode.interpretNode(context))
-                .orElseThrow(MissingValueException::new);
+        Number operandValue = (Number) operandNode.interpretNode(context).orElseThrow(MissingValueException::new);
+        Number result;
 
         switch (operatorToken.getType()) {
             case ADDITION:
-                return Optional.of(operandValue);
+                result = operandValue.floatValue();
+                break;
             case SUBTRACTION:
-                return Optional.of(-1 * operandValue);
+                result = -1 * operandValue.floatValue();
+                break;
             default:
                 throw new InappropriateOperatorException();
         }
+
+        if (operandValue instanceof Integer)
+            return Optional.of(result.intValue());
+        else
+            return Optional.of(result.floatValue());
     }
 }

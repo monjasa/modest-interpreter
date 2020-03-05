@@ -13,9 +13,15 @@ public class Client {
 
     public static void main(String[] args) {
 
+        //
+        //      specify path to the file with a command to interpret
+        //
+
+        String filePath = "test/program.txt";
+
         try {
 
-            String command = new String(Files.readAllBytes(Paths.get("test/program.txt")), StandardCharsets.UTF_8);
+            String command = new String(Files.readAllBytes(Paths.get(filePath)), StandardCharsets.UTF_8);
             Interpreter interpreter = new Interpreter(new Parser(new Lexer(command)));
             interpreter.interpret();
 
@@ -26,20 +32,5 @@ public class Client {
         } catch (IOException exception) {
             exception.printStackTrace();
         }
-
-        /*System.out.println('\n');
-
-        System.out.println(intType + "\t" + floatType);
-
-        VariableSymbol barSymbol = new VariableSymbol("bar", intType);
-        VariableSymbol fooSymbol = new VariableSymbol("foo", floatType);
-        System.out.println(fooSymbol + "\t" + barSymbol);
-
-        SymbolTable symbolTable = new SymbolTable();
-
-        symbolTable.defineSymbol(fooSymbol);
-
-        symbolTable.defineSymbol(barSymbol);
-        System.out.println(symbolTable);*/
     }
 }

@@ -29,48 +29,51 @@ public class BinaryOperatorNode extends NonTerminalNode {
     @Override
     public Optional<?> interpretNode(Context context) {
 
+        // TODO: refactor with wild classes a.k.a. ?
+
         Number leftValue = (Number) leftNode.interpretNode(context).orElseThrow(MissingValueException::new);
         Number rightValue = (Number) rightNode.interpretNode(context).orElseThrow(MissingValueException::new);
-        Optional<? extends Number> result;
+        Number result;
 
         if (leftValue instanceof Integer && rightValue instanceof Integer) {
 
             switch (operatorToken.getType()) {
                 case ADDITION:
-                    result = Optional.of(leftValue.intValue() + rightValue.intValue());
+                    result = leftValue.intValue() + rightValue.intValue();
                     break;
                 case SUBTRACTION:
-                    result = Optional.of(leftValue.intValue() - rightValue.intValue());
+                    result = leftValue.intValue() - rightValue.intValue();
                     break;
                 case MULTIPLICATION:
-                    result = Optional.of(leftValue.intValue() * rightValue.intValue());
+                    result = leftValue.intValue() * rightValue.intValue();
                     break;
                 case FLOAT_DIVISION:
-                    result = Optional.of(leftValue.intValue() / rightValue.intValue());
+                    result = leftValue.intValue() / rightValue.intValue();
                     break;
                 default:
                     throw new InappropriateOperatorException();
             }
 
         } else {
+
             switch (operatorToken.getType()) {
                 case ADDITION:
-                    result = Optional.of(leftValue.floatValue() + rightValue.floatValue());
+                    result = leftValue.floatValue() + rightValue.floatValue();
                     break;
                 case SUBTRACTION:
-                    result = Optional.of(leftValue.floatValue() - rightValue.floatValue());
+                    result = leftValue.floatValue() - rightValue.floatValue();
                     break;
                 case MULTIPLICATION:
-                    result = Optional.of(leftValue.floatValue() * rightValue.floatValue());
+                    result = leftValue.floatValue() * rightValue.floatValue();
                     break;
                 case FLOAT_DIVISION:
-                    result = Optional.of(leftValue.floatValue() / rightValue.floatValue());
+                    result = leftValue.floatValue() / rightValue.floatValue();
                     break;
                 default:
                     throw new InappropriateOperatorException();
             }
         }
 
-        return result;
+        return Optional.of(result);
     }
 }
