@@ -1,5 +1,6 @@
 package org.monjasa.interpreter.engine.ast;
 
+import org.monjasa.interpreter.engine.callstack.ActivationRecord;
 import org.monjasa.interpreter.engine.exceptions.MissingValueException;
 import org.monjasa.interpreter.engine.exceptions.UndefinedVariableException;
 import org.monjasa.interpreter.engine.interpreter.Context;
@@ -32,8 +33,9 @@ public class VariableNode extends TerminalNode {
         String variableName = variableToken.getValue(String.class)
                 .orElseThrow(RuntimeException::new);
 
-        return Optional.ofNullable(context.getGlobalScope().get(variableName))
-                .orElseThrow(UndefinedVariableException::new);
+        ActivationRecord activationRecord = context.getCallStack().peekRecord();
+
+        return activationRecord.getMember(variableName);
     }
 
     public Token getVariableToken() {

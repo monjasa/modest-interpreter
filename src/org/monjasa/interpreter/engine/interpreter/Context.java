@@ -1,17 +1,16 @@
 package org.monjasa.interpreter.engine.interpreter;
 
-import java.util.HashMap;
-import java.util.Optional;
+import org.monjasa.interpreter.engine.callstack.CallStack;
 
 public class Context {
 
-    private HashMap<String, Optional<?>> globalScope;
+    private CallStack callStack;
 
     public Context() {
-        globalScope = new HashMap<>();
+        callStack = new CallStack();
     }
 
-    public HashMap<String, Optional<?>> getGlobalScope() {
-        return globalScope;
+    public CallStack getCallStack() {
+        return callStack;
     }
 }

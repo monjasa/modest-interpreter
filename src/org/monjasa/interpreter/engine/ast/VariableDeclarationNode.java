@@ -1,5 +1,6 @@
 package org.monjasa.interpreter.engine.ast;
 
+import org.monjasa.interpreter.engine.callstack.ActivationRecord;
 import org.monjasa.interpreter.engine.exceptions.IdentifierDuplicationException;
 import org.monjasa.interpreter.engine.exceptions.MissingValueException;
 import org.monjasa.interpreter.engine.interpreter.Context;
@@ -41,7 +42,8 @@ public class VariableDeclarationNode extends DeclarationNode {
                 .orElseThrow(MissingValueException::new);
         TokenType variableType = typeNode.getTypeToken().getType();
 
-        context.getGlobalScope().put(variableName, TokenType.getDefaultValue(variableType));
+        ActivationRecord activationRecord = context.getCallStack().peekRecord();
+        activationRecord.putMember(variableName, TokenType.getDefaultValue(variableType));
 
         return Optional.empty();
     }

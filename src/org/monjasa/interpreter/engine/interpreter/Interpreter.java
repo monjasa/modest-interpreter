@@ -21,8 +21,8 @@ public class Interpreter {
     public Optional<?> interpret() {
         AbstractNode syntaxTreeRoot = parser.parseCommand();
         semanticAnalyzer.analyzeSemantic(syntaxTreeRoot);
-        //return syntaxTreeRoot.interpretNode(context);
-        return Optional.empty();
+        return syntaxTreeRoot.interpretNode(context);
+        //return Optional.empty();
     }
 
     public SemanticAnalyzer getSemanticAnalyzer() {

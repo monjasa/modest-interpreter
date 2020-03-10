@@ -1,5 +1,7 @@
 package org.monjasa.interpreter.engine.tokens;
 
+import org.monjasa.interpreter.engine.exceptions.MissingTokenTypeException;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
@@ -45,12 +47,16 @@ public enum TokenType {
                 .collect(Collectors.toMap(TokenType::getContraction, tokenType -> tokenType)));
     }
 
-    public static TokenType getTypeByContraction(char contraction) {
-        // TODO throw exception providing there was no such contraction
-        return TOKEN_CONTRACTIONS.getOrDefault(contraction, EOF);
+    public static TokenType getTypeByContraction(char contraction) throws MissingTokenTypeException {
+
+        if (TOKEN_CONTRACTIONS.containsKey(contraction))
+            return TOKEN_CONTRACTIONS.get(contraction);
+        else
+            throw new MissingTokenTypeException(contraction);
     }
 
     public static Optional<?> getDefaultValue(TokenType type) {
+
         switch (type) {
             case INTEGER_TYPE:
                 return Optional.of(0);

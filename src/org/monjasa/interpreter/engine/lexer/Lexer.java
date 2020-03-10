@@ -1,5 +1,7 @@
 package org.monjasa.interpreter.engine.lexer;
 
+import org.monjasa.interpreter.engine.exceptions.LexerOperationException;
+import org.monjasa.interpreter.engine.exceptions.MissingTokenTypeException;
 import org.monjasa.interpreter.engine.tokens.Token;
 import org.monjasa.interpreter.engine.tokens.TokenType;
 
@@ -14,7 +16,6 @@ public class Lexer {
     private static final Map<String, Token> RESERVED_KEYWORDS;
 
     static {
-        HashMap<String, Token> temporaryMap = new HashMap<>();
 
         ArrayList<Token> tokens = new ArrayList<>();
 
@@ -38,10 +39,16 @@ public class Lexer {
     private int position;
     private char currentChar;
 
+    private int currentLine;
+    private int currentColumn;
+
     public Lexer(String command) {
         this.command = command;
         this.position = 0;
         this.currentChar = command.charAt(position);
+
+        this.currentLine = 1;
+        this.currentColumn = 1;
     }
 
     public Token getNextToken() {
@@ -66,9 +73,13 @@ public class Lexer {
             }
 
             else {
-                Token token = new Token(TokenType.getTypeByContraction(currentChar));
-                advancePointer();
-                return token;
+                try {
+                    Token token = new Token(TokenType.getTypeByContraction(currentChar));
+                    advancePointer();
+                    return token;
+                } catch (MissingTokenTypeException exception) {
+                    throw new LexerOperationException(currentLine, currentColumn, exception.getMessage());
+                }
             }
         }
 
@@ -110,9 +121,20 @@ public class Lexer {
     }
 
     private void advancePointer() {
+
+        if (currentChar == '\n') {
+            currentLine++;
+            currentColumn = 0;
+        }
+
         position++;
-        if (position == command.length()) currentChar = END_OF_COMMAND;
-        else currentChar = command.charAt(position);
+
+        if (position == command.length()) {
+            currentChar = END_OF_COMMAND;
+        } else {
+            currentChar = command.charAt(position);
+            currentColumn++;
+        }
     }
 
     private void skipWhitespaces() {

@@ -23,6 +23,10 @@ public class ProcedureSymbol extends Symbol {
         formalParameters.add(symbol);
     }
 
+    public int getFormalParametersNumber() {
+        return formalParameters.size();
+    }
+
     @Override
     public String toString() {
         return String.format(Locale.US, "%s[name = '%s'; parameters = '%s']",

@@ -1,7 +1,9 @@
 package org.monjasa.interpreter.engine.ast;
 
+import org.monjasa.interpreter.engine.exceptions.WrongParametersNumberException;
 import org.monjasa.interpreter.engine.interpreter.Context;
 import org.monjasa.interpreter.engine.semanticanalyzer.ScopedSymbolTable;
+import org.monjasa.interpreter.engine.symbols.ProcedureSymbol;
 import org.monjasa.interpreter.engine.tokens.Token;
 
 import java.util.*;
@@ -20,7 +22,15 @@ public class ProcedureCallNode extends NonTerminalNode {
 
     @Override
     public void analyzeNodeSemantic(ScopedSymbolTable currentScope) {
-        // TODO: implement method
+
+        ProcedureSymbol procedureSymbol = (ProcedureSymbol) currentScope.fetchSymbol(procedureName);
+        int formalParametersNumber = procedureSymbol.getFormalParametersNumber();
+        int actualParametersNumber = parameters.size();
+
+        if (formalParametersNumber != actualParametersNumber)
+            throw new WrongParametersNumberException(formalParametersNumber, actualParametersNumber);
+
+        parameters.forEach(parameter -> parameter.analyzeNodeSemantic(currentScope));
     }
 
     @Override

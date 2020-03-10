@@ -1,5 +1,6 @@
 package org.monjasa.interpreter.engine.ast;
 
+import org.monjasa.interpreter.engine.callstack.ActivationRecord;
 import org.monjasa.interpreter.engine.exceptions.MissingValueException;
 import org.monjasa.interpreter.engine.interpreter.Context;
 import org.monjasa.interpreter.engine.semanticanalyzer.ScopedSymbolTable;
@@ -38,7 +39,8 @@ public class AssignmentOperatorNode extends NonTerminalNode {
                 .orElseThrow(MissingValueException::new);
         Optional<?> variableValue = operand.interpretNode(context);
 
-        context.getGlobalScope().put(variableName, variableValue);
+        ActivationRecord activationRecord = context.getCallStack().peekRecord();
+        activationRecord.putMember(variableName, variableValue);
 
         return Optional.empty();
     }

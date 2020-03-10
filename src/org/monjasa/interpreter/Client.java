@@ -1,5 +1,8 @@
 package org.monjasa.interpreter;
 
+import org.monjasa.interpreter.engine.callstack.ActivationRecord;
+import org.monjasa.interpreter.engine.callstack.ActivationRecordType;
+import org.monjasa.interpreter.engine.callstack.CallStack;
 import org.monjasa.interpreter.engine.interpreter.Interpreter;
 import org.monjasa.interpreter.engine.lexer.Lexer;
 import org.monjasa.interpreter.engine.parser.Parser;
@@ -26,8 +29,8 @@ public class Client {
             Interpreter interpreter = new Interpreter(new Parser(new Lexer(command)));
             interpreter.interpret();
 
-            System.out.println();
-            System.out.println(interpreter.getContext().getGlobalScope());
+            /*System.out.println();
+            System.out.println(interpreter.getContext().getCallStack());*/
 
         } catch (IOException exception) {
             exception.printStackTrace();
