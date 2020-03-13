@@ -2,7 +2,8 @@ package org.monjasa.interpreter.engine.callstack;
 
 public enum ActivationRecordType {
 
-    PROGRAM("program");
+    PROGRAM("program"),
+    PROCEDURE("procedure");
 
     private String typeName;
 

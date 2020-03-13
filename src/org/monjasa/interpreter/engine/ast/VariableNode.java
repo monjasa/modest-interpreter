@@ -1,5 +1,6 @@
 package org.monjasa.interpreter.engine.ast;
 
+import org.monjasa.interpreter.Client;
 import org.monjasa.interpreter.engine.callstack.ActivationRecord;
 import org.monjasa.interpreter.engine.exceptions.MissingValueException;
 import org.monjasa.interpreter.engine.exceptions.UndefinedVariableException;
@@ -7,6 +8,7 @@ import org.monjasa.interpreter.engine.interpreter.Context;
 import org.monjasa.interpreter.engine.semanticanalyzer.ScopedSymbolTable;
 import org.monjasa.interpreter.engine.tokens.Token;
 
+import javax.swing.tree.DefaultMutableTreeNode;
 import java.util.Optional;
 
 public class VariableNode extends TerminalNode {
@@ -40,5 +42,12 @@ public class VariableNode extends TerminalNode {
 
     public Token getVariableToken() {
         return variableToken;
+    }
+
+    @Override
+    public String toString() {
+        return "VariableNode{" +
+                "variableToken=" + variableToken +
+                '}';
     }
 }

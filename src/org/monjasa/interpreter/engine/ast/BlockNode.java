@@ -1,8 +1,10 @@
 package org.monjasa.interpreter.engine.ast;
 
+import org.monjasa.interpreter.Client;
 import org.monjasa.interpreter.engine.interpreter.Context;
 import org.monjasa.interpreter.engine.semanticanalyzer.ScopedSymbolTable;
 
+import javax.swing.tree.DefaultMutableTreeNode;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -24,9 +26,13 @@ public class BlockNode extends NonTerminalNode {
 
     @Override
     public Optional<?> interpretNode(Context context) {
-
         declarationNodes.forEach(node -> node.interpretNode(context));
         compoundStatementNode.interpretNode(context);
         return Optional.empty();
+    }
+
+    @Override
+    public String toString() {
+        return "BlockNode{}";
     }
 }

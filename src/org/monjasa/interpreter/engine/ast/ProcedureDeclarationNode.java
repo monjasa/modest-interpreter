@@ -27,7 +27,7 @@ public class ProcedureDeclarationNode extends DeclarationNode {
     @Override
     public void analyzeNodeSemantic(ScopedSymbolTable currentScope) {
         // TODO: implement method
-        ProcedureSymbol procedureSymbol = new ProcedureSymbol(procedureName);
+        ProcedureSymbol procedureSymbol = new ProcedureSymbol(procedureName, blockNode);
         currentScope.defineSymbol(procedureSymbol);
 
         System.out.println("Enter scope: " + procedureName);
@@ -52,7 +52,6 @@ public class ProcedureDeclarationNode extends DeclarationNode {
 
     @Override
     public Optional<?> interpretNode(Context context) {
-        blockNode.interpretNode(context);
         return Optional.empty();
     }
 }

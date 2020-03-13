@@ -27,4 +27,11 @@ public class OperandTypeNode extends TerminalNode {
     public Token getTypeToken() {
         return typeToken;
     }
+
+    @Override
+    public String toString() {
+        return "OperandTypeNode{" +
+                "typeToken=" + typeToken +
+                '}';
+    }
 }

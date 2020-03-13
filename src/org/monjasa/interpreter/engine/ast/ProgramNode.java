@@ -1,10 +1,12 @@
 package org.monjasa.interpreter.engine.ast;
 
+import org.monjasa.interpreter.Client;
 import org.monjasa.interpreter.engine.callstack.ActivationRecord;
 import org.monjasa.interpreter.engine.callstack.ActivationRecordType;
 import org.monjasa.interpreter.engine.interpreter.Context;
 import org.monjasa.interpreter.engine.semanticanalyzer.ScopedSymbolTable;
 
+import javax.swing.tree.DefaultMutableTreeNode;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -42,5 +44,12 @@ public class ProgramNode extends NonTerminalNode {
         context.getCallStack().popRecord();
 
         return Optional.empty();
+    }
+
+    @Override
+    public String toString() {
+        return "ProgramNode{" +
+                "programName='" + programName + '\'' +
+                '}';
     }
 }
