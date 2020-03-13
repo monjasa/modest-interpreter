@@ -3,6 +3,7 @@ package org.monjasa.interpreter.engine.ast;
 import org.monjasa.interpreter.engine.exceptions.MissingValueException;
 import org.monjasa.interpreter.engine.interpreter.Context;
 import org.monjasa.interpreter.engine.semanticanalyzer.ScopedSymbolTable;
+import org.monjasa.interpreter.engine.semanticanalyzer.SemanticAnalyzer;
 import org.monjasa.interpreter.engine.symbols.BuiltinTypeSymbol;
 import org.monjasa.interpreter.engine.symbols.ProcedureSymbol;
 import org.monjasa.interpreter.engine.symbols.Symbol;
@@ -26,11 +27,11 @@ public class ProcedureDeclarationNode extends DeclarationNode {
 
     @Override
     public void analyzeNodeSemantic(ScopedSymbolTable currentScope) {
-        // TODO: implement method
+
         ProcedureSymbol procedureSymbol = new ProcedureSymbol(procedureName, blockNode);
         currentScope.defineSymbol(procedureSymbol);
 
-        System.out.println("Enter scope: " + procedureName);
+        SemanticAnalyzer.logInfo("Entering scope: " + procedureName, true);
         ScopedSymbolTable procedureScope = new ScopedSymbolTable(procedureName,
                 currentScope.getScopeLevel() + 1, currentScope);
 
@@ -46,8 +47,8 @@ public class ProcedureDeclarationNode extends DeclarationNode {
 
         blockNode.analyzeNodeSemantic(procedureScope);
 
-        System.out.println(procedureScope);
-        System.out.println("Leave scope " + procedureName);
+        SemanticAnalyzer.logInfo(procedureScope.toString(), false);
+        SemanticAnalyzer.logInfo("Leaving scope " + procedureName, true);
     }
 
     @Override

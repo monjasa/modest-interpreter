@@ -72,15 +72,15 @@ public class ScopedSymbolTable {
     @Override
     public String toString() {
 
-        StringJoiner joiner = new StringJoiner("\n");
-        joiner.add(String.format(Locale.US, "\n|--- SCOPE '%s', LEVEL = '%d' ---|", scopeName, scopeLevel));
+        StringJoiner joiner = new StringJoiner("\n -\t");
+        joiner.add(String.format(Locale.US, "|--- SCOPE '%s', LEVEL = '%d' ---|", scopeName, scopeLevel));
         if (enclosingScope != null)
-            joiner.add(String.format(Locale.US, "|--- ENCLOSING SCOPE =  '%s' ---|", enclosingScope.scopeName));
+            joiner.add(String.format(Locale.US, "ENCLOSING SCOPE = '%s'", enclosingScope.scopeName));
 
         symbols.values().stream()
                 .map(Object::toString)
                 .forEach(joiner::add);
 
-        return joiner.toString() + '\n';
+        return joiner.toString();
     }
 }

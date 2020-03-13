@@ -4,7 +4,9 @@ import org.monjasa.interpreter.Client;
 import org.monjasa.interpreter.engine.callstack.ActivationRecord;
 import org.monjasa.interpreter.engine.callstack.ActivationRecordType;
 import org.monjasa.interpreter.engine.interpreter.Context;
+import org.monjasa.interpreter.engine.interpreter.Interpreter;
 import org.monjasa.interpreter.engine.semanticanalyzer.ScopedSymbolTable;
+import org.monjasa.interpreter.engine.semanticanalyzer.SemanticAnalyzer;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.util.Locale;
@@ -22,26 +24,32 @@ public class ProgramNode extends NonTerminalNode {
 
     @Override
     public void analyzeNodeSemantic(ScopedSymbolTable currentScope) {
-        System.out.println("Enter scope: global");
+
+        SemanticAnalyzer.logInfo("Entering scope: GLOBAL", true);
+
         blockNode.analyzeNodeSemantic(currentScope);
-        System.out.println(currentScope);
-        System.out.println("Leave scope: global");
+
+        SemanticAnalyzer.logInfo(currentScope.toString(), false);
+        SemanticAnalyzer.logInfo("Leaving scope: GLOBAL", true);
     }
 
     @Override
     public Optional<?> interpretNode(Context context) {
 
+        Interpreter.logInfo(String.format(Locale.US, "Preparing an activation record for program = '%s'...",
+                programName), true);
+
         ActivationRecord programActivationRecord = new ActivationRecord(programName,
                 ActivationRecordType.PROGRAM, 1);
 
-        System.out.println(String.format(Locale.US, "Enter: Program='%s'", programName));
+        Interpreter.logInfo(String.format(Locale.US, "Entering: program = '%s'", programName), true);
         context.getCallStack().pushRecord(programActivationRecord);
 
         blockNode.interpretNode(context);
-        System.out.println(programActivationRecord);
 
-        System.out.println(String.format(Locale.US, "Leave: Program='%s'", programName));
+        Interpreter.logInfo(String.format(Locale.US, "Leaving: program = '%s'", programName), true);
         context.getCallStack().popRecord();
+        Interpreter.logInfo(programActivationRecord.toString(), true);
 
         return Optional.empty();
     }

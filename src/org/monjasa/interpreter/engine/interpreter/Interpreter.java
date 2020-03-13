@@ -4,9 +4,30 @@ import org.monjasa.interpreter.engine.ast.*;
 import org.monjasa.interpreter.engine.parser.Parser;
 import org.monjasa.interpreter.engine.semanticanalyzer.SemanticAnalyzer;
 
+import java.util.Locale;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Interpreter {
+
+    private static final String LOGGING_START_MESSAGE = "Interpreting begins...";
+    private static final String LOGGING_END_MESSAGE = "Interpreting ends.";
+    private static final String LOGGING_FORMAT = "Interpreter | %s";
+
+    private final static Logger LOGGER = Logger.getLogger(Interpreter.class.getName());
+
+    static {
+        LOGGER.setLevel(Level.INFO);
+    }
+
+    public static void logInfo(String stringMessage, boolean isFormatted) {
+
+        if (isFormatted)
+            LOGGER.info(String.format(Locale.US, LOGGING_FORMAT, stringMessage) + '\n');
+        else
+            LOGGER.info(stringMessage + '\n');
+    }
 
     private Parser parser;
     private SemanticAnalyzer semanticAnalyzer;
@@ -18,11 +39,13 @@ public class Interpreter {
         this.context = new Context();
     }
 
-    public Optional<?> interpret() {
+    public void interpret() {
         AbstractNode syntaxTreeRoot = parser.parseCommand();
         semanticAnalyzer.analyzeSemantic(syntaxTreeRoot);
-        return syntaxTreeRoot.interpretNode(context);
-        //return Optional.empty();
+
+        logInfo(LOGGING_START_MESSAGE, false);
+        syntaxTreeRoot.interpretNode(context);
+        logInfo(LOGGING_END_MESSAGE, false);
     }
 
     public SemanticAnalyzer getSemanticAnalyzer() {

@@ -2,6 +2,7 @@ package org.monjasa.interpreter.engine.lexer;
 
 import org.monjasa.interpreter.engine.exceptions.LexerOperationException;
 import org.monjasa.interpreter.engine.exceptions.MissingTokenTypeException;
+import org.monjasa.interpreter.engine.semanticanalyzer.SemanticAnalyzer;
 import org.monjasa.interpreter.engine.tokens.Token;
 import org.monjasa.interpreter.engine.tokens.TokenType;
 

@@ -5,14 +5,30 @@ import org.monjasa.interpreter.engine.exceptions.InvalidSyntaxException;
 import org.monjasa.interpreter.engine.ast.*;
 import org.monjasa.interpreter.engine.exceptions.MissingValueException;
 import org.monjasa.interpreter.engine.lexer.Lexer;
+import org.monjasa.interpreter.engine.semanticanalyzer.SemanticAnalyzer;
 import org.monjasa.interpreter.engine.tokens.Token;
 import org.monjasa.interpreter.engine.tokens.TokenType;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Parser {
+
+    private static final String LOGGING_START_MESSAGE = "Parsing begins...";
+    private static final String LOGGING_END_MESSAGE = "Parsing ends.";
+
+    private final static Logger LOGGER = Logger.getLogger(SemanticAnalyzer.class.getName());
+
+    static {
+        LOGGER.setLevel(Level.INFO);
+    }
+
+    public static void logInfo(String stringMessage) {
+        LOGGER.info(stringMessage + '\n');
+    }
 
     private Lexer lexer;
     private Token currentToken;
@@ -422,10 +438,14 @@ public class Parser {
 
     public AbstractNode parseCommand() {
 
+        logInfo(LOGGING_START_MESSAGE);
+
         AbstractNode root = getProgram();
 
         if (currentToken.getType() != TokenType.EOF)
             throw new RuntimeException();
+
+        logInfo(LOGGING_END_MESSAGE);
 
         return root;
     }

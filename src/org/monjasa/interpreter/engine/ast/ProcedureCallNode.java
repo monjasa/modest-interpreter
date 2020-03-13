@@ -4,6 +4,7 @@ import org.monjasa.interpreter.engine.callstack.ActivationRecord;
 import org.monjasa.interpreter.engine.callstack.ActivationRecordType;
 import org.monjasa.interpreter.engine.exceptions.WrongParametersNumberException;
 import org.monjasa.interpreter.engine.interpreter.Context;
+import org.monjasa.interpreter.engine.interpreter.Interpreter;
 import org.monjasa.interpreter.engine.semanticanalyzer.ScopedSymbolTable;
 import org.monjasa.interpreter.engine.symbols.ProcedureSymbol;
 import org.monjasa.interpreter.engine.symbols.Symbol;
@@ -42,6 +43,9 @@ public class ProcedureCallNode extends NonTerminalNode {
     @Override
     public Optional<?> interpretNode(Context context) {
 
+        Interpreter.logInfo(String.format(Locale.US, "Preparing an activation record for procedure = '%s'...",
+                procedureName), true);
+
         ActivationRecord procedureActivationRecord = new ActivationRecord(procedureName,
                 ActivationRecordType.PROCEDURE, 2);
 
@@ -50,13 +54,14 @@ public class ProcedureCallNode extends NonTerminalNode {
         for (int i = 0; i < formalParameters.size(); i++)
             procedureActivationRecord.putMember(formalParameters.get(i).getName(), arguments.get(i).interpretNode(context));
 
-        System.out.println(procedureActivationRecord.toString());
-
+        Interpreter.logInfo(procedureActivationRecord.toString(), true);
+        Interpreter.logInfo(String.format(Locale.US, "Entering: procedure = '%s'", procedureName), true);
         context.getCallStack().pushRecord(procedureActivationRecord);
         procedureSymbol.getBlockReference().interpretNode(context);
-        context.getCallStack().popRecord();
 
-        System.out.println(procedureActivationRecord.toString());
+        Interpreter.logInfo(String.format(Locale.US, "Leaving: procedure = '%s'", procedureName), true);
+        context.getCallStack().popRecord();
+        Interpreter.logInfo(procedureActivationRecord.toString(), true);
 
         return Optional.empty();
     }
