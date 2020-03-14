@@ -6,13 +6,14 @@ import org.monjasa.interpreter.engine.semanticanalyzer.ScopedSymbolTable;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class CompoundStatementNode extends NonTerminalNode {
 
-    private ArrayList<AbstractNode> childNodes;
+    private List<AbstractNode> childNodes;
 
-    public CompoundStatementNode(ArrayList<AbstractNode> nodeReferences) {
+    public CompoundStatementNode(List<AbstractNode> nodeReferences) {
         childNodes = new ArrayList<>(nodeReferences);
     }
 

@@ -2,12 +2,10 @@ package org.monjasa.interpreter.engine.lexer;
 
 import org.monjasa.interpreter.engine.exceptions.LexerOperationException;
 import org.monjasa.interpreter.engine.exceptions.MissingTokenTypeException;
-import org.monjasa.interpreter.engine.semanticanalyzer.SemanticAnalyzer;
 import org.monjasa.interpreter.engine.tokens.Token;
 import org.monjasa.interpreter.engine.tokens.TokenType;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Lexer {
 
@@ -17,22 +15,9 @@ public class Lexer {
     private static final Map<String, Token> RESERVED_KEYWORDS;
 
     static {
-
-        ArrayList<Token> tokens = new ArrayList<>();
-
-        tokens.add(new Token(TokenType.PROGRAM, "program"));
-        tokens.add(new Token(TokenType.PROCEDURE, "procedure"));
-        tokens.add(new Token(TokenType.VARIABLE_DECLARATION_BLOCK, "let"));
-
-        tokens.add(new Token(TokenType.INTEGER_TYPE, "int"));
-        tokens.add(new Token(TokenType.FLOAT_TYPE, "float"));
-
-        tokens.add(new Token(TokenType.BEGIN, "do"));
-        tokens.add(new Token(TokenType.END, "end"));
-
-        RESERVED_KEYWORDS = Collections.unmodifiableMap(tokens.stream()
-                .collect(Collectors.toMap(token -> token.getValue(String.class).orElseThrow(RuntimeException::new)
-                        , token -> token)));
+        Map<String, Token> temporaryMap = new HashMap<>();
+        TokenType.getKeywords().forEach(tokenType -> temporaryMap.put(tokenType.getContraction(), new Token(tokenType, tokenType.getContraction())));
+        RESERVED_KEYWORDS = Collections.unmodifiableMap(temporaryMap);
     }
 
 
@@ -75,7 +60,7 @@ public class Lexer {
 
             else {
                 try {
-                    Token token = new Token(TokenType.getTypeByContraction(currentChar));
+                    Token token = new Token(TokenType.getTypeByContraction(Character.toString(currentChar)));
                     advancePointer();
                     return token;
                 } catch (MissingTokenTypeException exception) {
@@ -95,7 +80,7 @@ public class Lexer {
             advancePointer();
         }
 
-        if (currentChar == TokenType.DOT.getContraction()) {
+        if (currentChar == TokenType.DOT.getContraction().charAt(0)) {
             numberString.append(currentChar);
             advancePointer();
 

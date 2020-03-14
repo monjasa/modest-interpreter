@@ -6,14 +6,15 @@ import org.monjasa.interpreter.engine.semanticanalyzer.ScopedSymbolTable;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class BlockNode extends NonTerminalNode {
 
-    private ArrayList<DeclarationNode> declarationNodes;
+    private List<DeclarationNode> declarationNodes;
     private CompoundStatementNode compoundStatementNode;
 
-    public BlockNode(ArrayList<DeclarationNode> declarationNodeReferences, CompoundStatementNode compoundStatementNode) {
+    public BlockNode(List<DeclarationNode> declarationNodeReferences, CompoundStatementNode compoundStatementNode) {
         this.declarationNodes = new ArrayList<>(declarationNodeReferences);
         this.compoundStatementNode = compoundStatementNode;
     }

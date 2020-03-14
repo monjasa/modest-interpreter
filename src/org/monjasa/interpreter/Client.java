@@ -1,8 +1,5 @@
 package org.monjasa.interpreter;
 
-import org.monjasa.interpreter.engine.callstack.ActivationRecord;
-import org.monjasa.interpreter.engine.callstack.ActivationRecordType;
-import org.monjasa.interpreter.engine.callstack.CallStack;
 import org.monjasa.interpreter.engine.interpreter.Interpreter;
 import org.monjasa.interpreter.engine.lexer.Lexer;
 import org.monjasa.interpreter.engine.parser.Parser;
@@ -16,7 +13,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.logging.Logger;
 
 public class Client extends JFrame {
 

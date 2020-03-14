@@ -3,6 +3,7 @@ package org.monjasa.interpreter.engine.semanticanalyzer;
 import com.sun.istack.internal.Nullable;
 import org.monjasa.interpreter.engine.exceptions.MissingIdentifierException;
 import org.monjasa.interpreter.engine.symbols.BuiltinTypeSymbol;
+import org.monjasa.interpreter.engine.symbols.BuiltinValueSymbol;
 import org.monjasa.interpreter.engine.symbols.Symbol;
 import org.monjasa.interpreter.engine.tokens.TokenType;
 
@@ -20,6 +21,10 @@ public class ScopedSymbolTable {
     private void initializeBuiltins() {
         defineSymbol(new BuiltinTypeSymbol(TokenType.INTEGER_TYPE.name()));
         defineSymbol(new BuiltinTypeSymbol(TokenType.FLOAT_TYPE.name()));
+        defineSymbol(new BuiltinTypeSymbol(TokenType.BOOLEAN_TYPE.name()));
+
+        defineSymbol(new BuiltinValueSymbol("true", fetchSymbol(TokenType.BOOLEAN_TYPE.name())));
+        defineSymbol(new BuiltinValueSymbol("false", fetchSymbol(TokenType.BOOLEAN_TYPE.name())));
     }
 
     public ScopedSymbolTable(String scopeName, int scopeLevel) {

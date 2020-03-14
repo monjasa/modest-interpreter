@@ -13,6 +13,8 @@ public class BuiltinTypeSymbol extends Symbol {
 
     @Override
     public String toString() {
-        return String.format(Locale.US, "%s[name = '%s']", this.getClass().getSimpleName(), name);
+        return "BuiltinTypeSymbol{" +
+                "name='" + name + '\'' +
+                '}';
     }
 }

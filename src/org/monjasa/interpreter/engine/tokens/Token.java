@@ -16,7 +16,7 @@ public class Token {
 
         termTokens = new ArrayList<>();
         termTokens.add(TokenType.MULTIPLICATION);
-        termTokens.add(TokenType.FLOAT_DIVISION);
+        termTokens.add(TokenType.DIVISION);
     }
 
     public static boolean isExpressionToken(TokenType tokenType) {

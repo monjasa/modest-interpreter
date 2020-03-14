@@ -1,6 +1,5 @@
 package org.monjasa.interpreter.engine.parser;
 
-import com.sun.xml.internal.ws.api.model.wsdl.WSDLOutput;
 import org.monjasa.interpreter.engine.exceptions.InvalidSyntaxException;
 import org.monjasa.interpreter.engine.ast.*;
 import org.monjasa.interpreter.engine.exceptions.MissingValueException;
@@ -46,13 +45,13 @@ public class Parser {
         currentToken = lexer.getNextToken();
     }
 
-    private AbstractNode getVariable() {
+    private VariableNode getVariable() {
 
         //
         //      variable : ID
         //
 
-        AbstractNode node = new VariableNode(currentToken);
+        VariableNode node = new VariableNode(currentToken);
         setupCurrentToken(TokenType.ID);
         return node;
     }
@@ -64,12 +63,14 @@ public class Parser {
         //                  | SUBTRACTION termValue
         //                  | INTEGER_CONST
         //                  | FLOAT_CONST
+        //                  | TRUE_CONST
+        //                  | FALSE_CONST
         //                  | LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
         //                  | variable
         //
 
 
-        AbstractNode node = null;
+        AbstractNode node;
 
         Token token = currentToken;
         switch (token.getType()) {
@@ -89,6 +90,14 @@ public class Parser {
                 setupCurrentToken(TokenType.FLOAT_CONST);
                 node = new NumberOperandNode(token);
                 break;
+            case TRUE_CONST:
+                setupCurrentToken(TokenType.TRUE_CONST);
+                node = new BooleanOperandNode(new Token(TokenType.TRUE_CONST, Boolean.TRUE));
+                break;
+            case FALSE_CONST:
+                setupCurrentToken(TokenType.FALSE_CONST);
+                node = new BooleanOperandNode(new Token(TokenType.FALSE_CONST, Boolean.FALSE));
+                break;
             case LEFT_PARENTHESIS:
                 setupCurrentToken(TokenType.LEFT_PARENTHESIS);
                 node = getExpression();
@@ -104,7 +113,7 @@ public class Parser {
     private AbstractNode getTerm() {
 
         //
-        //      term : termValue ((MULTIPLICATION | INTEGER_DIVISION | FLOAT_DIVISION) termValue)*
+        //      term : termValue ((MULTIPLICATION | DIVISION) termValue)*
         //
 
         AbstractNode node = getTermValue();
@@ -116,8 +125,8 @@ public class Parser {
                 case MULTIPLICATION:
                     setupCurrentToken(TokenType.MULTIPLICATION);
                     break;
-                case FLOAT_DIVISION:
-                    setupCurrentToken(TokenType.FLOAT_DIVISION);
+                case DIVISION:
+                    setupCurrentToken(TokenType.DIVISION);
                     break;
             }
 
@@ -153,7 +162,7 @@ public class Parser {
         return node;
     }
 
-    private AbstractNode getProcedureCallStatement() {
+    private ProcedureCallNode getProcedureCallStatement() {
 
         //
         //      procedureCallStatement : ID LEFT_PARENTHESIS (expression (COMMA expression)*)? RIGHT_PARENTHESIS
@@ -181,23 +190,78 @@ public class Parser {
         return new ProcedureCallNode(procedureName, parameters, procedureIdToken);
     }
 
-    private AbstractNode getAssignmentStatement() {
+    private AssignmentOperatorNode getAssignmentStatement() {
 
         //
         //      assignmentStatement : variable ASSIGNMENT expression
         //
 
-        AbstractNode node;
-
-        AbstractNode variable = getVariable();
+        VariableNode variable = getVariable();
         setupCurrentToken(TokenType.ASSIGNMENT);
         AbstractNode expression = getExpression();
 
-        node = new AssignmentOperatorNode((VariableNode) variable, expression);
-        return node;
+        return new AssignmentOperatorNode(variable, expression);
     }
 
-    private AbstractNode getEmptyStatement() {
+    private ConditionNode getCondition() {
+
+        //
+        //      condition : TRUE_CONST
+        //                  | FALSE_CONST
+        //                  | variable
+        //
+
+        ConditionNode conditionNode;
+
+        switch (currentToken.getType()) {
+            case TRUE_CONST:
+                setupCurrentToken(TokenType.TRUE_CONST);
+                conditionNode = new ConditionNode(new BooleanOperandNode(new Token(TokenType.TRUE_CONST, Boolean.TRUE)));
+                break;
+            case FALSE_CONST:
+                setupCurrentToken(TokenType.FALSE_CONST);
+                conditionNode = new ConditionNode(new BooleanOperandNode(new Token(TokenType.FALSE_CONST, Boolean.FALSE)));
+                break;
+            default:
+                VariableNode variableNode = getVariable();
+                conditionNode = new ConditionNode(variableNode);
+        }
+
+        return conditionNode;
+    }
+
+    private ConditionalStatementNode getConditionalStatement() {
+
+        //
+        //      conditionalStatement : IF LEFT_PARENTHESIS condition RIGHT_PARENTHESIS compoundStatement (ELSE compoundStatement)? SEMICOLON
+        //
+
+        ConditionalStatementNode conditionalStatementNode;
+        setupCurrentToken(TokenType.IF);
+
+        setupCurrentToken(TokenType.LEFT_PARENTHESIS);
+        ConditionNode conditionNode = getCondition();
+        setupCurrentToken(TokenType.RIGHT_PARENTHESIS);
+
+        CompoundStatementNode compoundStatement = getCompoundStatement();
+
+        if (currentToken.getType() == TokenType.ELSE) {
+
+            setupCurrentToken(TokenType.ELSE);
+
+            CompoundStatementNode alternateCompoundStatement = getCompoundStatement();
+            conditionalStatementNode = new ConditionalStatementNode(conditionNode, compoundStatement, alternateCompoundStatement);
+
+        } else {
+            conditionalStatementNode = new ConditionalStatementNode(conditionNode, compoundStatement);
+        }
+
+        setupCurrentToken(TokenType.SEMICOLON);
+
+        return conditionalStatementNode;
+    }
+
+    private EmptyOperatorNode getEmptyStatement() {
 
         //
         //      emptyStatement :
@@ -212,6 +276,7 @@ public class Parser {
         //      statement : compoundStatement
         //                  | procedureCallStatement
         //                  | assignmentStatement
+        //                  | conditionalStatement
         //                  | emptyStatement
         //
 
@@ -223,10 +288,13 @@ public class Parser {
                 node = getCompoundStatement();
                 break;
             case ID:
-                if (lexer.getCurrentChar() == TokenType.LEFT_PARENTHESIS.getContraction())
+                if (lexer.getCurrentChar() == TokenType.LEFT_PARENTHESIS.getContraction().charAt(0))
                     node = getProcedureCallStatement();
                 else
                     node = getAssignmentStatement();
+                break;
+            case IF:
+                node = getConditionalStatement();
                 break;
             default:
                 node = getEmptyStatement();
@@ -236,7 +304,7 @@ public class Parser {
         return node;
     }
 
-    private ArrayList<AbstractNode> getStatementList() {
+    private List<AbstractNode> getStatementList() {
 
         //
         //      statementList : statement | statement SEMICOLON statementList
@@ -244,7 +312,7 @@ public class Parser {
 
         AbstractNode node = getStatement();
 
-        ArrayList<AbstractNode> statementList = new ArrayList<>();
+        List<AbstractNode> statementList = new ArrayList<>();
         statementList.add(node);
 
         while(currentToken.getType() == TokenType.SEMICOLON) {
@@ -255,24 +323,25 @@ public class Parser {
         return statementList;
     }
 
-    private AbstractNode getCompoundStatement() {
+    private CompoundStatementNode getCompoundStatement() {
 
         //
         //      compoundStatement : BEGIN statementList END
         //
 
         setupCurrentToken(TokenType.BEGIN);
-        ArrayList<AbstractNode> nodes = getStatementList();
+        List<AbstractNode> nodes = getStatementList();
         setupCurrentToken(TokenType.END);
 
         return new CompoundStatementNode(nodes);
     }
 
-    private AbstractNode getTypeSpecification() {
+    private OperandTypeNode getTypeSpecification() {
 
         //
         //      typeSpecification : INTEGER_TYPE
         //                          | FLOAT_TYPE
+        //                          | BOOLEAN_TYPE
         //
 
         OperandTypeNode operandTypeNode;
@@ -286,6 +355,10 @@ public class Parser {
                 operandTypeNode = new OperandTypeNode(currentToken);
                 setupCurrentToken(TokenType.FLOAT_TYPE);
                 break;
+            case BOOLEAN_TYPE:
+                operandTypeNode = new OperandTypeNode(currentToken);
+                setupCurrentToken(TokenType.BOOLEAN_TYPE);
+                break;
             default:
                 throw new RuntimeException();
         }
@@ -293,13 +366,13 @@ public class Parser {
         return operandTypeNode;
     }
 
-    private ArrayList<VariableDeclarationNode> getVariableDeclaration() {
+    private List<VariableDeclarationNode> getVariableDeclaration() {
 
         //
         //      variableDeclaration: ID (COMMA ID)* COLON typeSpecification
         //
 
-        ArrayList<VariableNode> variableNodes = new ArrayList<>();
+        List<VariableNode> variableNodes = new ArrayList<>();
         variableNodes.add(new VariableNode(currentToken));
         setupCurrentToken(TokenType.ID);
 
@@ -311,8 +384,8 @@ public class Parser {
 
         setupCurrentToken(TokenType.COLON);
 
-        OperandTypeNode typeNode = (OperandTypeNode) getTypeSpecification();
-        ArrayList<VariableDeclarationNode> declarationNodes = new ArrayList<>(variableNodes.size());
+        OperandTypeNode typeNode = getTypeSpecification();
+        List<VariableDeclarationNode> declarationNodes = new ArrayList<>(variableNodes.size());
 
         variableNodes.forEach(node -> declarationNodes.add(new VariableDeclarationNode(node, typeNode)));
 
@@ -338,7 +411,7 @@ public class Parser {
         }
 
         setupCurrentToken(TokenType.COLON);
-        OperandTypeNode typeNode = (OperandTypeNode) getTypeSpecification();
+        OperandTypeNode typeNode = getTypeSpecification();
 
         parameterTokens.forEach(token -> parameterNodes.add(new ParameterNode(new VariableNode(token), typeNode)));
         return parameterNodes;
@@ -364,17 +437,42 @@ public class Parser {
         return parameterNodes;
     }
 
-    private ArrayList<DeclarationNode> getDeclarations() {
+    private ProcedureDeclarationNode getProcedureDeclaration() {
 
         //
-        //      declarations : VARIABLE_DECLARATION_BLOCK (variableDeclaration SEMICOLON)+
-        //                     | (PROCEDURE ID (LEFT_PARENTHESIS formalParametersList RIGHT_PARENTHESIS)? SEMICOLON block SEMICOLON)*
-        //                     | empty
+        //      procedureDeclaration : PROCEDURE ID (LEFT_PARENTHESIS formalParametersList RIGHT_PARENTHESIS)? SEMICOLON block SEMICOLON
         //
 
-        ArrayList<DeclarationNode> declarations = new ArrayList<>();
+        setupCurrentToken(TokenType.PROCEDURE);
+        String procedureName = currentToken.getValue(String.class)
+                .orElseThrow(MissingValueException::new);
+        setupCurrentToken(TokenType.ID);
+
+        List<ParameterNode> parameters = Collections.emptyList();
+
+        if (currentToken.getType() == TokenType.LEFT_PARENTHESIS) {
+            setupCurrentToken(TokenType.LEFT_PARENTHESIS);
+            parameters = getFormalParametersList();
+            setupCurrentToken(TokenType.RIGHT_PARENTHESIS);
+        }
+
+        setupCurrentToken(TokenType.SEMICOLON);
+        BlockNode procedureBlockNode = getBlock();
+        setupCurrentToken(TokenType.SEMICOLON);
+
+        return new ProcedureDeclarationNode(procedureName, parameters, procedureBlockNode);
+    }
+
+    private List<DeclarationNode> getDeclarations() {
+
+        //
+        //      declarations : (VARIABLE_DECLARATION_BLOCK (variableDeclaration SEMICOLON)+)? procedureDeclaration*
+        //
+
+        List<DeclarationNode> declarations = new ArrayList<>();
 
         if (currentToken.getType() == TokenType.VARIABLE_DECLARATION_BLOCK) {
+
             setupCurrentToken(TokenType.VARIABLE_DECLARATION_BLOCK);
 
             while (currentToken.getType() == TokenType.ID) {
@@ -384,63 +482,47 @@ public class Parser {
         }
 
         while (currentToken.getType() == TokenType.PROCEDURE) {
-            setupCurrentToken(TokenType.PROCEDURE);
-            String procedureName = currentToken.getValue(String.class)
-                    .orElseThrow(MissingValueException::new);
-            setupCurrentToken(TokenType.ID);
-
-            List<ParameterNode> parameters = Collections.emptyList();
-
-            if (currentToken.getType() == TokenType.LEFT_PARENTHESIS) {
-                setupCurrentToken(TokenType.LEFT_PARENTHESIS);
-                parameters = getFormalParametersList();
-                setupCurrentToken(TokenType.RIGHT_PARENTHESIS);
-            }
-
-            setupCurrentToken(TokenType.SEMICOLON);
-            BlockNode procedureBlockNode = (BlockNode) getBlock();
-            declarations.add(new ProcedureDeclarationNode(procedureName, parameters, procedureBlockNode));
-            setupCurrentToken(TokenType.SEMICOLON);
+            declarations.add(getProcedureDeclaration());
         }
 
         return declarations;
     }
 
-    private AbstractNode getBlock() {
+    private BlockNode getBlock() {
 
         //
         //      block : declarations compoundStatement
         //
 
-        ArrayList<DeclarationNode> declarations = getDeclarations();
-        CompoundStatementNode compoundStatementNode = (CompoundStatementNode) getCompoundStatement();
+        List<DeclarationNode> declarations = getDeclarations();
+        CompoundStatementNode compoundStatementNode = getCompoundStatement();
 
         return new BlockNode(declarations, compoundStatementNode);
     }
 
-    private AbstractNode getProgram() {
+    private ProgramNode getProgram() {
 
         //
         //      program : PROGRAM variable SEMICOLON block DOT
         //
 
         setupCurrentToken(TokenType.PROGRAM);
-        String programName = ((VariableNode) getVariable()).getVariableToken().getValue(String.class)
+        String programName = (getVariable()).getVariableToken().getValue(String.class)
                 .orElseThrow(MissingValueException::new);
 
         setupCurrentToken(TokenType.SEMICOLON);
-        BlockNode blockNode = (BlockNode) getBlock();
+        BlockNode blockNode = getBlock();
 
         ProgramNode programNode = new ProgramNode(programName, blockNode);
         setupCurrentToken(TokenType.DOT);
         return programNode;
     }
 
-    public AbstractNode parseCommand() {
+    public ProgramNode parseCommand() {
 
         logInfo(LOGGING_START_MESSAGE);
 
-        AbstractNode root = getProgram();
+        ProgramNode root = getProgram();
 
         if (currentToken.getType() != TokenType.EOF)
             throw new RuntimeException();

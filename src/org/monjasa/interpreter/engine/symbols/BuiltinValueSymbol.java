@@ -1,16 +1,14 @@
 package org.monjasa.interpreter.engine.symbols;
 
-import java.util.Locale;
+public class BuiltinValueSymbol extends Symbol {
 
-public class VariableSymbol extends Symbol {
-
-    public VariableSymbol(String name, Symbol type) {
+    public BuiltinValueSymbol(String name, Symbol type) {
         super(name, type);
     }
 
     @Override
     public String toString() {
-        return "VariableSymbol{" +
+        return "BuiltinValueSymbol{" +
                 "name='" + name + '\'' +
                 ", type=" + type +
                 '}';

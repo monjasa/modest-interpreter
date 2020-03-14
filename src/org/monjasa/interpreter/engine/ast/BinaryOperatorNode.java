@@ -47,7 +47,7 @@ public class BinaryOperatorNode extends NonTerminalNode {
                 case MULTIPLICATION:
                     result = leftValue.intValue() * rightValue.intValue();
                     break;
-                case FLOAT_DIVISION:
+                case DIVISION:
                     result = leftValue.intValue() / rightValue.intValue();
                     break;
                 default:
@@ -66,7 +66,7 @@ public class BinaryOperatorNode extends NonTerminalNode {
                 case MULTIPLICATION:
                     result = leftValue.floatValue() * rightValue.floatValue();
                     break;
-                case FLOAT_DIVISION:
+                case DIVISION:
                     result = leftValue.floatValue() / rightValue.floatValue();
                     break;
                 default:
