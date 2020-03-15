@@ -72,6 +72,39 @@ public class Lexer {
         return new Token(TokenType.EOF);
     }
 
+    public TokenType peekNextToken() {
+
+        while (currentChar != END_OF_COMMAND) {
+
+            if (currentChar == COMMENT_CHARACTER) {
+                advancePointer();
+                skipComment();
+            }
+
+            else if (Character.isWhitespace(currentChar)) {
+                skipWhitespaces();
+            }
+
+            else if (Character.isDigit(currentChar)) {
+                return TokenType.NUMBER_CONST;
+            }
+
+            else if (Character.isLetter(currentChar)) {
+                return peekIdToken();
+            }
+
+            else {
+                try {
+                    return TokenType.getTypeByContraction(Character.toString(currentChar));
+                } catch (MissingTokenTypeException exception) {
+                    throw new LexerOperationException(currentLine, currentColumn, exception.getMessage());
+                }
+            }
+        }
+
+        return TokenType.EOF;
+    }
+
     private Token getNumberToken() {
 
         StringBuilder numberString = new StringBuilder();
@@ -104,6 +137,34 @@ public class Lexer {
         }
 
         return RESERVED_KEYWORDS.getOrDefault(name.toString(), new Token(TokenType.ID, name.toString()));
+    }
+
+    private TokenType peekIdToken() {
+
+        char peekingChar = currentChar;
+        int peekingPosition = position;
+        StringBuilder name = new StringBuilder();
+
+        while (peekingChar != END_OF_COMMAND && Character.isLetterOrDigit(peekingChar)) {
+
+            name.append(peekingChar);
+
+            peekingPosition++;
+
+            if (peekingPosition == command.length()) {
+                peekingChar = END_OF_COMMAND;
+            } else {
+                peekingChar = command.charAt(peekingPosition);
+            }
+        }
+
+        // TODO: refactor without using exceptions
+
+        try {
+            return TokenType.getTypeByContraction(name.toString());
+        } catch (MissingTokenTypeException exception) {
+            return TokenType.ID;
+        }
     }
 
     private void advancePointer() {

@@ -203,44 +203,77 @@ public class Parser {
         return new AssignmentOperatorNode(variable, expression);
     }
 
-    private ConditionNode getCondition() {
+    private LogicalValueNode getLogicalValue() {
 
         //
-        //      condition : TRUE_CONST
-        //                  | FALSE_CONST
-        //                  | variable
+        //      logicalValue : TRUE_CONST
+        //                     | FALSE_CONST
+        //                     | variable
         //
 
-        ConditionNode conditionNode;
+        LogicalValueNode logicalValueNode;
 
         switch (currentToken.getType()) {
             case TRUE_CONST:
                 setupCurrentToken(TokenType.TRUE_CONST);
-                conditionNode = new ConditionNode(new BooleanOperandNode(new Token(TokenType.TRUE_CONST, Boolean.TRUE)));
+                logicalValueNode = new LogicalValueNode(new BooleanOperandNode(new Token(TokenType.TRUE_CONST, Boolean.TRUE)));
                 break;
             case FALSE_CONST:
                 setupCurrentToken(TokenType.FALSE_CONST);
-                conditionNode = new ConditionNode(new BooleanOperandNode(new Token(TokenType.FALSE_CONST, Boolean.FALSE)));
+                logicalValueNode = new LogicalValueNode(new BooleanOperandNode(new Token(TokenType.FALSE_CONST, Boolean.FALSE)));
                 break;
             default:
                 VariableNode variableNode = getVariable();
-                conditionNode = new ConditionNode(variableNode);
+                logicalValueNode = new LogicalValueNode(variableNode);
         }
 
-        return conditionNode;
+        return logicalValueNode;
+    }
+
+    private LogicalExpressionNode getLogicalExpression() {
+
+        //
+        //      logicalExpression : logicalValue
+        //                          | termValue (MORE | LESS) termValue
+        //
+
+        LogicalExpressionNode logicalExpressionNode;
+
+        TokenType nextTokenType = lexer.peekNextToken();
+
+        if (Token.isComparingToken(nextTokenType)) {
+
+            AbstractNode leftOperandNode = getTermValue();
+
+            switch (nextTokenType) {
+                case MORE:
+                    setupCurrentToken(TokenType.MORE);
+                    break;
+                case LESS:
+                    setupCurrentToken(TokenType.LESS);
+                    break;
+            }
+
+            logicalExpressionNode = new LogicalExpressionNode(leftOperandNode, new Token(nextTokenType), getTermValue());
+
+        } else {
+            logicalExpressionNode = new LogicalExpressionNode(getLogicalValue());
+        }
+
+        return logicalExpressionNode;
     }
 
     private ConditionalStatementNode getConditionalStatement() {
 
         //
-        //      conditionalStatement : IF LEFT_PARENTHESIS condition RIGHT_PARENTHESIS compoundStatement (ELSE compoundStatement)? SEMICOLON
+        //      conditionalStatement : IF LEFT_PARENTHESIS logicalExpression RIGHT_PARENTHESIS compoundStatement (ELSE compoundStatement)?
         //
 
         ConditionalStatementNode conditionalStatementNode;
         setupCurrentToken(TokenType.IF);
 
         setupCurrentToken(TokenType.LEFT_PARENTHESIS);
-        ConditionNode conditionNode = getCondition();
+        LogicalExpressionNode logicalExpression = getLogicalExpression();
         setupCurrentToken(TokenType.RIGHT_PARENTHESIS);
 
         CompoundStatementNode compoundStatement = getCompoundStatement();
@@ -250,15 +283,30 @@ public class Parser {
             setupCurrentToken(TokenType.ELSE);
 
             CompoundStatementNode alternateCompoundStatement = getCompoundStatement();
-            conditionalStatementNode = new ConditionalStatementNode(conditionNode, compoundStatement, alternateCompoundStatement);
+            conditionalStatementNode = new ConditionalStatementNode(logicalExpression, compoundStatement, alternateCompoundStatement);
 
         } else {
-            conditionalStatementNode = new ConditionalStatementNode(conditionNode, compoundStatement);
+            conditionalStatementNode = new ConditionalStatementNode(logicalExpression, compoundStatement);
         }
 
-        setupCurrentToken(TokenType.SEMICOLON);
-
         return conditionalStatementNode;
+    }
+
+    private LoopStatementNode getLoopStatement() {
+
+        //
+        //      loopStatement : WHILE LEFT_PARENTHESIS conditionalExpression RIGHT_PARENTHESIS compoundStatement
+        //
+
+        setupCurrentToken(TokenType.WHILE);
+
+        setupCurrentToken(TokenType.LEFT_PARENTHESIS);
+        LogicalExpressionNode logicalExpression = getLogicalExpression();
+        setupCurrentToken(TokenType.RIGHT_PARENTHESIS);
+
+        CompoundStatementNode compoundStatementNode = getCompoundStatement();
+
+        return new LoopStatementNode(logicalExpression, compoundStatementNode);
     }
 
     private EmptyOperatorNode getEmptyStatement() {
@@ -277,6 +325,7 @@ public class Parser {
         //                  | procedureCallStatement
         //                  | assignmentStatement
         //                  | conditionalStatement
+        //                  | loopStatement
         //                  | emptyStatement
         //
 
@@ -295,6 +344,9 @@ public class Parser {
                 break;
             case IF:
                 node = getConditionalStatement();
+                break;
+            case WHILE:
+                node = getLoopStatement();
                 break;
             default:
                 node = getEmptyStatement();

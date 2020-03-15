@@ -1,13 +1,15 @@
 package org.monjasa.interpreter.engine.tokens;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
 public class Token {
 
-    private static ArrayList<TokenType> expressionTokens;
-    private static ArrayList<TokenType> termTokens;
+    private static List<TokenType> expressionTokens;
+    private static List<TokenType> termTokens;
+    private static List<TokenType> comparingTokens;
 
     static {
         expressionTokens = new ArrayList<>();
@@ -17,6 +19,10 @@ public class Token {
         termTokens = new ArrayList<>();
         termTokens.add(TokenType.MULTIPLICATION);
         termTokens.add(TokenType.DIVISION);
+
+        comparingTokens = new ArrayList<>();
+        comparingTokens.add(TokenType.MORE);
+        comparingTokens.add(TokenType.LESS);
     }
 
     public static boolean isExpressionToken(TokenType tokenType) {
@@ -25,6 +31,10 @@ public class Token {
 
     public static boolean isTermToken(TokenType tokenType) {
         return termTokens.stream().anyMatch(type -> tokenType == type);
+    }
+
+    public static boolean isComparingToken(TokenType tokenType) {
+        return comparingTokens.stream().anyMatch(type -> tokenType == type);
     }
 
     private TokenType type;

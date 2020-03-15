@@ -14,9 +14,14 @@ public enum TokenType {
 
     BEGIN('{'),
     END('}'),
+    ASSIGNMENT('='),
+
+    MORE('>'),
+    LESS('<'),
+
     IF("if", true),
     ELSE("else", true),
-    ASSIGNMENT('='),
+    WHILE("while", true),
 
     COLON(':'),
     SEMICOLON(';'),
@@ -26,8 +31,10 @@ public enum TokenType {
     INTEGER_TYPE("int", true),
     FLOAT_TYPE("float", true),
     BOOLEAN_TYPE("boolean", true),
-    INTEGER_CONST("0"),
-    FLOAT_CONST("0.0"),
+
+    NUMBER_CONST("0"),
+    INTEGER_CONST("d"),
+    FLOAT_CONST("f"),
     TRUE_CONST("true", true),
     FALSE_CONST("false", true),
 
@@ -39,7 +46,9 @@ public enum TokenType {
     DIVISION('/'),
 
     LEFT_PARENTHESIS('('),
-    RIGHT_PARENTHESIS(')');
+    RIGHT_PARENTHESIS(')'),
+    WHITESPACE(" "),
+    EMPTY_TOKEN("");
 
 
     private static final Map<String, TokenType> TOKEN_CONTRACTIONS;
@@ -79,6 +88,7 @@ public enum TokenType {
                 throw new RuntimeException();
         }
     }
+
 
     private String contraction;
     private boolean isKeyword;

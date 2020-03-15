@@ -2,16 +2,15 @@ package org.monjasa.interpreter.engine.ast;
 
 import org.monjasa.interpreter.engine.interpreter.Context;
 import org.monjasa.interpreter.engine.semanticanalyzer.ScopedSymbolTable;
-import org.monjasa.interpreter.engine.tokens.Token;
 
 import java.util.Optional;
 
-public class ConditionNode extends NonTerminalNode {
+public class LogicalValueNode extends TerminalNode {
 
-    private AbstractNode conditionNode;
+    private AbstractNode value;
 
-    public ConditionNode(AbstractNode conditionNode) {
-        this.conditionNode = conditionNode;
+    public LogicalValueNode(AbstractNode value) {
+        this.value = value;
     }
 
     @Override
@@ -19,11 +18,11 @@ public class ConditionNode extends NonTerminalNode {
 
         // TODO: implement methods
 
-        conditionNode.analyzeNodeSemantic(currentScope);
+        value.analyzeNodeSemantic(currentScope);
     }
 
     @Override
     public Optional<?> interpretNode(Context context) {
-        return conditionNode.interpretNode(context);
+        return value.interpretNode(context);
     }
 }

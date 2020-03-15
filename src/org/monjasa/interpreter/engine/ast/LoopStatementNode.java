@@ -6,22 +6,14 @@ import org.monjasa.interpreter.engine.semanticanalyzer.ScopedSymbolTable;
 
 import java.util.Optional;
 
-public class ConditionalStatementNode extends NonTerminalNode {
+public class LoopStatementNode extends NonTerminalNode {
 
     private LogicalExpressionNode logicalExpressionNode;
-    private AbstractNode compoundStatement;
-    private AbstractNode alternateCompoundStatement;
+    private CompoundStatementNode compoundStatement;
 
-    public ConditionalStatementNode(LogicalExpressionNode logicalExpressionNode, CompoundStatementNode compoundStatement) {
+    public LoopStatementNode(LogicalExpressionNode logicalExpressionNode, CompoundStatementNode compoundStatement) {
         this.logicalExpressionNode = logicalExpressionNode;
         this.compoundStatement = compoundStatement;
-        this.alternateCompoundStatement = new EmptyOperatorNode();
-    }
-
-    public ConditionalStatementNode(LogicalExpressionNode logicalExpressionNode, CompoundStatementNode compoundStatement, CompoundStatementNode alternateCompoundStatement) {
-        this.logicalExpressionNode = logicalExpressionNode;
-        this.compoundStatement = compoundStatement;
-        this.alternateCompoundStatement = alternateCompoundStatement;
     }
 
     @Override
@@ -31,7 +23,6 @@ public class ConditionalStatementNode extends NonTerminalNode {
 
         logicalExpressionNode.analyzeNodeSemantic(currentScope);
         compoundStatement.analyzeNodeSemantic(currentScope);
-        alternateCompoundStatement.analyzeNodeSemantic(currentScope);
     }
 
     @Override
@@ -39,8 +30,11 @@ public class ConditionalStatementNode extends NonTerminalNode {
 
         boolean conditionValue = (Boolean) logicalExpressionNode.interpretNode(context).orElseThrow(MissingValueException::new);
 
-        if (conditionValue) compoundStatement.interpretNode(context);
-        else alternateCompoundStatement.interpretNode(context);
+        while (conditionValue) {
+            compoundStatement.interpretNode(context);
+            conditionValue = (Boolean) logicalExpressionNode.interpretNode(context).orElseThrow(MissingValueException::new);
+            System.out.println("iteration");
+        }
 
         return Optional.empty();
     }
