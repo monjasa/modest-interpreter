@@ -1,6 +1,5 @@
 package org.monjasa.interpreter.engine.ast;
 
-import org.monjasa.interpreter.Client;
 import org.monjasa.interpreter.engine.callstack.ActivationRecord;
 import org.monjasa.interpreter.engine.callstack.ActivationRecordType;
 import org.monjasa.interpreter.engine.interpreter.Context;
@@ -8,7 +7,6 @@ import org.monjasa.interpreter.engine.interpreter.Interpreter;
 import org.monjasa.interpreter.engine.semanticanalyzer.ScopedSymbolTable;
 import org.monjasa.interpreter.engine.semanticanalyzer.SemanticAnalyzer;
 
-import javax.swing.tree.DefaultMutableTreeNode;
 import java.util.Locale;
 import java.util.Optional;
 

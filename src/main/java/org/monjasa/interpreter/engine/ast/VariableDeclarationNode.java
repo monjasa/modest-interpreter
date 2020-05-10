@@ -1,6 +1,5 @@
 package org.monjasa.interpreter.engine.ast;
 
-import org.monjasa.interpreter.Client;
 import org.monjasa.interpreter.engine.callstack.ActivationRecord;
 import org.monjasa.interpreter.engine.exceptions.IdentifierDuplicationException;
 import org.monjasa.interpreter.engine.exceptions.MissingValueException;
@@ -10,7 +9,6 @@ import org.monjasa.interpreter.engine.symbols.Symbol;
 import org.monjasa.interpreter.engine.symbols.VariableSymbol;
 import org.monjasa.interpreter.engine.tokens.TokenType;
 
-import javax.swing.tree.DefaultMutableTreeNode;
 import java.util.Optional;
 
 public class VariableDeclarationNode extends DeclarationNode {

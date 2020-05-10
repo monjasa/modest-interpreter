@@ -295,7 +295,7 @@ public class Parser {
     private LoopStatementNode getLoopStatement() {
 
         //
-        //      loopStatement : WHILE LEFT_PARENTHESIS conditionalExpression RIGHT_PARENTHESIS compoundStatement
+        //      loopStatement : WHILE LEFT_PARENTHESIS logicalExpression RIGHT_PARENTHESIS compoundStatement
         //
 
         setupCurrentToken(TokenType.WHILE);
@@ -473,7 +473,7 @@ public class Parser {
 
         //
         //      formalParametersList : formalParameters
-        //                             | formalParameters SEMI formalParametersList
+        //                             | formalParameters SEMICOLON formalParametersList
         //
 
         if (currentToken.getType() != TokenType.ID)
@@ -559,7 +559,7 @@ public class Parser {
         //
 
         setupCurrentToken(TokenType.PROGRAM);
-        String programName = (getVariable()).getVariableToken().getValue(String.class)
+        String programName = getVariable().getVariableToken().getValue(String.class)
                 .orElseThrow(MissingValueException::new);
 
         setupCurrentToken(TokenType.SEMICOLON);

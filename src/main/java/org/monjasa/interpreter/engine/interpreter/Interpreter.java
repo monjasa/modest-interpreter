@@ -40,6 +40,7 @@ public class Interpreter {
     }
 
     public void interpret() {
+
         AbstractNode syntaxTreeRoot = parser.parseCommand();
         semanticAnalyzer.analyzeSemantic(syntaxTreeRoot);
 

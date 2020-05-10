@@ -55,11 +55,12 @@ public enum TokenType {
     private static final List<TokenType> KEYWORDS;
 
     static {
+
         TOKEN_CONTRACTIONS = Collections.unmodifiableMap(Arrays.stream(values())
                 .collect(Collectors.toMap(TokenType::getContraction, tokenType -> tokenType)));
 
         KEYWORDS = Collections.unmodifiableList(Arrays.stream(values())
-                .filter(tokenType -> tokenType.isKeyword)
+                .filter(TokenType::isKeyword)
                 .collect(Collectors.toList()));
     }
 
@@ -91,24 +92,28 @@ public enum TokenType {
 
 
     private String contraction;
-    private boolean isKeyword;
+    private boolean keyword;
 
     TokenType(String contraction) {
         this.contraction = contraction;
-        this.isKeyword = false;
+        this.keyword = false;
     }
 
     TokenType(char contraction) {
         this.contraction = Character.toString(contraction);
-        this.isKeyword = false;
+        this.keyword = false;
     }
 
-    TokenType(String contraction, boolean isKeyword) {
+    TokenType(String contraction, boolean keyword) {
         this.contraction = contraction;
-        this.isKeyword = isKeyword;
+        this.keyword = keyword;
     }
 
     public String getContraction() {
         return contraction;
+    }
+
+    public boolean isKeyword() {
+        return keyword;
     }
 }
