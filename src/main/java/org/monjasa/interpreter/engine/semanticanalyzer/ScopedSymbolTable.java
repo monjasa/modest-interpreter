@@ -1,10 +1,11 @@
 package org.monjasa.interpreter.engine.semanticanalyzer;
 
 import com.sun.istack.internal.Nullable;
+import org.monjasa.interpreter.Client;
+import org.monjasa.interpreter.engine.ast.*;
 import org.monjasa.interpreter.engine.exceptions.MissingIdentifierException;
-import org.monjasa.interpreter.engine.symbols.BuiltinTypeSymbol;
-import org.monjasa.interpreter.engine.symbols.BuiltinValueSymbol;
-import org.monjasa.interpreter.engine.symbols.Symbol;
+import org.monjasa.interpreter.engine.interpreter.Context;
+import org.monjasa.interpreter.engine.symbols.*;
 import org.monjasa.interpreter.engine.tokens.TokenType;
 
 import java.util.*;
@@ -19,12 +20,18 @@ public class ScopedSymbolTable {
     private ScopedSymbolTable enclosingScope;
 
     private void initializeBuiltins() {
+
         defineSymbol(new BuiltinTypeSymbol(TokenType.INTEGER_TYPE.name()));
         defineSymbol(new BuiltinTypeSymbol(TokenType.FLOAT_TYPE.name()));
         defineSymbol(new BuiltinTypeSymbol(TokenType.BOOLEAN_TYPE.name()));
+        defineSymbol(new BuiltinTypeSymbol(TokenType.STRING_TYPE.name()));
 
         defineSymbol(new BuiltinValueSymbol("true", fetchSymbol(TokenType.BOOLEAN_TYPE.name())));
         defineSymbol(new BuiltinValueSymbol("false", fetchSymbol(TokenType.BOOLEAN_TYPE.name())));
+
+        defineSymbol(new ProcedureSymbol<>("moveHorizontally", fetchSymbol(TokenType.INTEGER_TYPE.name()), Client::moveEntityHorizontally));
+        defineSymbol(new ProcedureSymbol<>("moveVertically", fetchSymbol(TokenType.INTEGER_TYPE.name()), Client::moveEntityVertically));
+        defineSymbol(new ProcedureSymbol<>("printMessage", fetchSymbol(TokenType.STRING_TYPE.name()), Client::printMessage));
     }
 
     public ScopedSymbolTable(String scopeName, int scopeLevel) {
@@ -53,7 +60,7 @@ public class ScopedSymbolTable {
 
     public Symbol fetchSymbol(String symbolName) throws MissingIdentifierException {
 
-        Symbol fetchingSymbol = null;
+        Symbol fetchingSymbol;
 
         if (symbols.containsKey(symbolName)) {
             fetchingSymbol = symbols.get(symbolName);

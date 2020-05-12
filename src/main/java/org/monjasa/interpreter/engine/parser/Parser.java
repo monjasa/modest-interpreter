@@ -65,6 +65,7 @@ public class Parser {
         //                  | FLOAT_CONST
         //                  | TRUE_CONST
         //                  | FALSE_CONST
+        //                  | STRING_BRACKET STRING_CONST STRING_BRACKET
         //                  | LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
         //                  | variable
         //
@@ -97,6 +98,10 @@ public class Parser {
             case FALSE_CONST:
                 setupCurrentToken(TokenType.FALSE_CONST);
                 node = new BooleanOperandNode(new Token(TokenType.FALSE_CONST, Boolean.FALSE));
+                break;
+            case STRING_CONST:
+                setupCurrentToken(TokenType.STRING_CONST);
+                node = new StringOperandNode(token);
                 break;
             case LEFT_PARENTHESIS:
                 setupCurrentToken(TokenType.LEFT_PARENTHESIS);
@@ -394,6 +399,7 @@ public class Parser {
         //      typeSpecification : INTEGER_TYPE
         //                          | FLOAT_TYPE
         //                          | BOOLEAN_TYPE
+        //                          | STRING_TYPE
         //
 
         OperandTypeNode operandTypeNode;
@@ -410,6 +416,10 @@ public class Parser {
             case BOOLEAN_TYPE:
                 operandTypeNode = new OperandTypeNode(currentToken);
                 setupCurrentToken(TokenType.BOOLEAN_TYPE);
+                break;
+            case STRING_TYPE:
+                operandTypeNode = new OperandTypeNode(currentToken);
+                setupCurrentToken(TokenType.STRING_TYPE);
                 break;
             default:
                 throw new RuntimeException();

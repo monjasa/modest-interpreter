@@ -114,23 +114,11 @@ public class Client {
 
     private void execute(String command) {
 
-        Interpreter interpreter = new Interpreter(new Parser(new Lexer(command)));
+        Interpreter interpreter = new Interpreter(this, new Parser(new Lexer(command)));
         interpreter.interpret();
-
-        moveEntityHorizontally(1);
-        moveEntityVertically(3);
-        printMessage("hello my name is Arthur");
 
         /*System.out.println();
         System.out.println(interpreter.getContext().getCallStack());*/
-    }
-
-    private void moveEntityHorizontally(int xOffset) {
-        updateEntityPosition(Math.min(Math.max(xPosition + xOffset, 0), CELLS_IN_ROW - 1), yPosition);
-    }
-
-    private void moveEntityVertically(int yOffset) {
-        updateEntityPosition(xPosition, Math.min(Math.max(yPosition + yOffset, 0), CELLS_IN_ROW - 1));
     }
 
     private void updateEntityPosition(int xPositionUpdated, int yPositionUpdated) {
@@ -143,7 +131,15 @@ public class Client {
         entityPanel.repaint();
     }
 
-    private void printMessage(String message) {
+    public void moveEntityHorizontally(int xOffset) {
+        updateEntityPosition(Math.min(Math.max(xPosition + xOffset, 0), CELLS_IN_ROW - 1), yPosition);
+    }
+
+    public void moveEntityVertically(int yOffset) {
+        updateEntityPosition(xPosition, Math.min(Math.max(yPosition + yOffset, 0), CELLS_IN_ROW - 1));
+    }
+
+    public void printMessage(String message) {
 
         Container entityCell = entityLabel.getParent();
         Point entityCoordinates = SwingUtilities.convertPoint(entityLabel, entityLabel.getX(), entityLabel.getY(), entityCell.getParent());
@@ -159,7 +155,6 @@ public class Client {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
 
         Popup popup = PopupFactory.getSharedInstance().getPopup(
                 entityCell.getParent(),
@@ -196,23 +191,25 @@ public class Client {
      */
     private void $$$setupUI$$$() {
         mainPanel = new JPanel();
-        mainPanel.setLayout(new GridLayoutManager(3, 2, new Insets(10, 10, 10, 10), -1, -1));
+        mainPanel.setLayout(new GridLayoutManager(3, 3, new Insets(10, 10, 10, 10), -1, -1));
         Font mainPanelFont = this.$$$getFont$$$("Open Sans", -1, 12, mainPanel.getFont());
         if (mainPanelFont != null) mainPanel.setFont(mainPanelFont);
-        commandArea = new JTextArea();
-        Font commandAreaFont = this.$$$getFont$$$("Open Sans", -1, 12, commandArea.getFont());
-        if (commandAreaFont != null) commandArea.setFont(commandAreaFont);
-        mainPanel.add(commandArea, new GridConstraints(0, 1, 2, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(250, -1), null, 0, false));
         entityPanel = new JPanel();
         entityPanel.setLayout(new BorderLayout(0, 0));
         entityPanel.setBackground(new Color(-15050988));
         entityPanel.setForeground(new Color(-15050988));
         mainPanel.add(entityPanel, new GridConstraints(0, 0, 3, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        final JScrollPane scrollPane1 = new JScrollPane();
+        mainPanel.add(scrollPane1, new GridConstraints(0, 1, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        commandArea = new JTextArea();
+        Font commandAreaFont = this.$$$getFont$$$("Open Sans", -1, 12, commandArea.getFont());
+        if (commandAreaFont != null) commandArea.setFont(commandAreaFont);
+        scrollPane1.setViewportView(commandArea);
         executeButton = new JButton();
         Font executeButtonFont = this.$$$getFont$$$("Open Sans", Font.PLAIN, 16, executeButton.getFont());
         if (executeButtonFont != null) executeButton.setFont(executeButtonFont);
         executeButton.setText("Execute");
-        mainPanel.add(executeButton, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(-1, 50), null, 0, false));
+        mainPanel.add(executeButton, new GridConstraints(1, 1, 2, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(-1, 50), null, 0, false));
     }
 
     /**

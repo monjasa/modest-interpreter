@@ -1,5 +1,6 @@
 package org.monjasa.interpreter.engine.interpreter;
 
+import org.monjasa.interpreter.Client;
 import org.monjasa.interpreter.engine.ast.*;
 import org.monjasa.interpreter.engine.parser.Parser;
 import org.monjasa.interpreter.engine.semanticanalyzer.SemanticAnalyzer;
@@ -33,10 +34,10 @@ public class Interpreter {
     private SemanticAnalyzer semanticAnalyzer;
     private Context context;
 
-    public Interpreter(Parser parser) {
+    public Interpreter(Client client, Parser parser) {
         this.parser = parser;
         this.semanticAnalyzer = new SemanticAnalyzer();
-        this.context = new Context();
+        this.context = new Context(client);
     }
 
     public void interpret() {

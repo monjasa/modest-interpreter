@@ -31,12 +31,14 @@ public enum TokenType {
     INTEGER_TYPE("int", true),
     FLOAT_TYPE("float", true),
     BOOLEAN_TYPE("boolean", true),
+    STRING_TYPE("string", true),
 
     NUMBER_CONST("0"),
     INTEGER_CONST("d"),
     FLOAT_CONST("f"),
     TRUE_CONST("true", true),
     FALSE_CONST("false", true),
+    STRING_CONST("s"),
 
     ID("id"),
 
@@ -47,6 +49,7 @@ public enum TokenType {
 
     LEFT_PARENTHESIS('('),
     RIGHT_PARENTHESIS(')'),
+    STRING_BRACKET('"'),
     WHITESPACE(" "),
     EMPTY_TOKEN("");
 
@@ -85,11 +88,12 @@ public enum TokenType {
                 return Optional.of(0.0f);
             case BOOLEAN_TYPE:
                 return Optional.of(false);
+            case STRING_TYPE:
+                return Optional.of("");
             default:
                 throw new RuntimeException();
         }
     }
-
 
     private String contraction;
     private boolean keyword;

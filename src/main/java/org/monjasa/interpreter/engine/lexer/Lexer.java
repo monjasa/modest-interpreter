@@ -11,6 +11,7 @@ public class Lexer {
 
     private static final char END_OF_COMMAND = 0;
     private static final char COMMENT_CHARACTER = '`';
+    private static final char STRING_BRACKET_CHARACTER = '"';
 
     private static final Map<String, Token> RESERVED_KEYWORDS;
 
@@ -48,6 +49,10 @@ public class Lexer {
 
             else if (Character.isWhitespace(currentChar)) {
                 skipWhitespaces();
+            }
+
+            else if (currentChar == STRING_BRACKET_CHARACTER) {
+                return getStringToken();
             }
 
             else if (Character.isDigit(currentChar)) {
@@ -126,6 +131,21 @@ public class Lexer {
         }
 
         return new Token(TokenType.INTEGER_CONST, Integer.parseInt(numberString.toString()));
+    }
+
+    private Token getStringToken() {
+
+        StringBuilder stringBuilder = new StringBuilder();
+        advancePointer();
+
+        while (currentChar != END_OF_COMMAND && currentChar != STRING_BRACKET_CHARACTER) {
+            stringBuilder.append(currentChar);
+            advancePointer();
+        }
+
+        advancePointer();
+
+        return new Token(TokenType.STRING_CONST, stringBuilder.toString());
     }
 
     private Token getIdToken() {
