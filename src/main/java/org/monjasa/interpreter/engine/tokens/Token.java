@@ -10,6 +10,7 @@ public class Token {
     private static List<TokenType> expressionTokens;
     private static List<TokenType> termTokens;
     private static List<TokenType> comparingTokens;
+    private static List<TokenType> logicalExpressionTokens;
 
     static {
         expressionTokens = new ArrayList<>();
@@ -23,6 +24,10 @@ public class Token {
         comparingTokens = new ArrayList<>();
         comparingTokens.add(TokenType.MORE);
         comparingTokens.add(TokenType.LESS);
+
+        logicalExpressionTokens = new ArrayList<>();
+        logicalExpressionTokens.add(TokenType.AND);
+        logicalExpressionTokens.add(TokenType.OR);
     }
 
     public static boolean isExpressionToken(TokenType tokenType) {
@@ -35,6 +40,10 @@ public class Token {
 
     public static boolean isComparingToken(TokenType tokenType) {
         return comparingTokens.stream().anyMatch(type -> tokenType == type);
+    }
+
+    public static boolean isLogicalExpresionToken(TokenType tokenType) {
+        return logicalExpressionTokens.stream().anyMatch(type -> tokenType == type);
     }
 
     private TokenType type;

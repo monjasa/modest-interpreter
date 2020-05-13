@@ -1,12 +1,11 @@
 package org.monjasa.interpreter.engine.interpreter;
 
 import org.monjasa.interpreter.Client;
-import org.monjasa.interpreter.engine.ast.*;
+import org.monjasa.interpreter.engine.ast.AbstractNode;
 import org.monjasa.interpreter.engine.parser.Parser;
 import org.monjasa.interpreter.engine.semanticanalyzer.SemanticAnalyzer;
 
 import java.util.Locale;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

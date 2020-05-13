@@ -1,5 +1,6 @@
 package org.monjasa.interpreter.engine.ast;
 
+import org.monjasa.interpreter.engine.exceptions.InappropriateOperatorException;
 import org.monjasa.interpreter.engine.exceptions.MissingValueException;
 import org.monjasa.interpreter.engine.interpreter.Context;
 import org.monjasa.interpreter.engine.semanticanalyzer.ScopedSymbolTable;
@@ -10,54 +11,54 @@ import java.util.Optional;
 
 public class LogicalExpressionNode extends NonTerminalNode {
 
-    private AbstractNode leftOperandNode;
-    private Token comparingToken;
-    private AbstractNode rightOperandNode;
+    private AbstractNode leftNode;
+    private Token operatorToken;
+    private AbstractNode rightNode;
 
-    public LogicalExpressionNode(AbstractNode leftOperandNode) {
-        this.leftOperandNode = leftOperandNode;
-        this.comparingToken = new Token(TokenType.EMPTY_TOKEN);
-        this.rightOperandNode = new EmptyOperatorNode();
+    public LogicalExpressionNode(AbstractNode leftNode) {
+        this.leftNode = leftNode;
+        this.operatorToken = new Token(TokenType.EMPTY_TOKEN);
+        this.rightNode = new EmptyOperatorNode();
     }
 
-    public LogicalExpressionNode(AbstractNode leftOperandNode, Token comparingToken, AbstractNode rightOperandNode) {
-        this.leftOperandNode = leftOperandNode;
-        this.comparingToken = comparingToken;
-        this.rightOperandNode = rightOperandNode;
+    public LogicalExpressionNode(AbstractNode leftNode, Token operatorToken, AbstractNode rightNode) {
+        this.leftNode = leftNode;
+        this.operatorToken = operatorToken;
+        this.rightNode = rightNode;
     }
 
     @Override
     public void analyzeNodeSemantic(ScopedSymbolTable currentScope) {
-
-        // TODO: implement methods
-
-        leftOperandNode.analyzeNodeSemantic(currentScope);
-        rightOperandNode.analyzeNodeSemantic(currentScope);
+        leftNode.analyzeNodeSemantic(currentScope);
+        rightNode.analyzeNodeSemantic(currentScope);
     }
 
     @Override
     public Optional<?> interpretNode(Context context) {
 
-        Optional<?> result = Optional.empty();
+        boolean leftValue = (Boolean) leftNode.interpretNode(context).orElseThrow(MissingValueException::new);
 
-        if (comparingToken.getType() != TokenType.EMPTY_TOKEN) {
+        if (rightNode instanceof EmptyOperatorNode) return Optional.of(leftValue);
 
-            Number leftValue = (Number) leftOperandNode.interpretNode(context).orElseThrow(MissingValueException::new);
-            Number rightValue = (Number) rightOperandNode.interpretNode(context).orElseThrow(MissingValueException::new);
+        boolean result;
 
-            switch (comparingToken.getType()) {
-                case MORE:
-                    result = Optional.of(leftValue.floatValue() > rightValue.floatValue());
-                    break;
-                case LESS:
-                    result = Optional.of(leftValue.floatValue() < rightValue.floatValue());
-                    break;
-            }
-
-        } else {
-            result = leftOperandNode.interpretNode(context);
+        switch (operatorToken.getType()) {
+            case AND:
+                if (!leftValue) result = false;
+                else result = (Boolean) rightNode.interpretNode(context).orElseThrow(MissingValueException::new);
+                break;
+            case OR:
+                if (leftValue) result = true;
+                else result = (Boolean) rightNode.interpretNode(context).orElseThrow(MissingValueException::new);
+                break;
+            default:
+                throw new InappropriateOperatorException();
         }
 
-        return result;
+        return Optional.of(result);
+    }
+
+    public AbstractNode getLeftNode() {
+        return leftNode;
     }
 }

@@ -1,7 +1,5 @@
 package org.monjasa.interpreter.engine.symbols;
 
-import java.util.Locale;
-
 public class VariableSymbol extends Symbol {
 
     public VariableSymbol(String name, Symbol type) {

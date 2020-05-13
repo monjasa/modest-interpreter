@@ -2,13 +2,17 @@ package org.monjasa.interpreter.engine.semanticanalyzer;
 
 import com.sun.istack.internal.Nullable;
 import org.monjasa.interpreter.Client;
-import org.monjasa.interpreter.engine.ast.*;
 import org.monjasa.interpreter.engine.exceptions.MissingIdentifierException;
-import org.monjasa.interpreter.engine.interpreter.Context;
-import org.monjasa.interpreter.engine.symbols.*;
+import org.monjasa.interpreter.engine.symbols.BuiltinTypeSymbol;
+import org.monjasa.interpreter.engine.symbols.BuiltinValueSymbol;
+import org.monjasa.interpreter.engine.symbols.ProcedureSymbol;
+import org.monjasa.interpreter.engine.symbols.Symbol;
 import org.monjasa.interpreter.engine.tokens.TokenType;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.StringJoiner;
 
 public class ScopedSymbolTable {
 

@@ -1,7 +1,6 @@
 package org.monjasa.interpreter.engine.semanticanalyzer;
 
 import org.monjasa.interpreter.engine.ast.AbstractNode;
-import org.monjasa.interpreter.engine.interpreter.Interpreter;
 
 import java.util.Locale;
 import java.util.logging.Level;

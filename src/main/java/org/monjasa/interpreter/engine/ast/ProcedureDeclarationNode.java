@@ -4,7 +4,6 @@ import org.monjasa.interpreter.engine.exceptions.MissingValueException;
 import org.monjasa.interpreter.engine.interpreter.Context;
 import org.monjasa.interpreter.engine.semanticanalyzer.ScopedSymbolTable;
 import org.monjasa.interpreter.engine.semanticanalyzer.SemanticAnalyzer;
-import org.monjasa.interpreter.engine.symbols.BuiltinTypeSymbol;
 import org.monjasa.interpreter.engine.symbols.ProcedureSymbol;
 import org.monjasa.interpreter.engine.symbols.Symbol;
 import org.monjasa.interpreter.engine.symbols.VariableSymbol;

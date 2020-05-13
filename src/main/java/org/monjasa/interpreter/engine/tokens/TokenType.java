@@ -18,6 +18,8 @@ public enum TokenType {
 
     MORE('>'),
     LESS('<'),
+    AND('&'),
+    OR('|'),
 
     IF("if", true),
     ELSE("else", true),

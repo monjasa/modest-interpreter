@@ -65,7 +65,7 @@ public class Parser {
         //                  | FLOAT_CONST
         //                  | TRUE_CONST
         //                  | FALSE_CONST
-        //                  | STRING_BRACKET STRING_CONST STRING_BRACKET
+        //                  | STRING_CONST
         //                  | LEFT_PARENTHESIS expression RIGHT_PARENTHESIS
         //                  | variable
         //
@@ -235,14 +235,14 @@ public class Parser {
         return logicalValueNode;
     }
 
-    private LogicalExpressionNode getLogicalExpression() {
+    private LogicalTermNode getLogicalTerm() {
 
         //
-        //      logicalExpression : logicalValue
-        //                          | termValue (MORE | LESS) termValue
+        //      logicalTerm : logicalValue
+        //                    | termValue (MORE | LESS) termValue
         //
 
-        LogicalExpressionNode logicalExpressionNode;
+        LogicalTermNode logicalTermNode;
 
         TokenType nextTokenType = lexer.peekNextToken();
 
@@ -259,13 +259,39 @@ public class Parser {
                     break;
             }
 
-            logicalExpressionNode = new LogicalExpressionNode(leftOperandNode, new Token(nextTokenType), getTermValue());
+            logicalTermNode = new LogicalTermNode(leftOperandNode, new Token(nextTokenType), getTermValue());
 
         } else {
-            logicalExpressionNode = new LogicalExpressionNode(getLogicalValue());
+            logicalTermNode = new LogicalTermNode(getLogicalValue());
         }
 
-        return logicalExpressionNode;
+        return logicalTermNode;
+    }
+
+    private LogicalExpressionNode getLogicalExpression() {
+
+        //
+        //      logicalExpression : termValue ((AND | OR) termValue)*
+        //
+
+        LogicalExpressionNode node = new LogicalExpressionNode(getLogicalTerm());
+
+        while (Token.isLogicalExpresionToken(currentToken.getType())) {
+
+            Token token = currentToken;
+            switch (token.getType()) {
+                case AND:
+                    setupCurrentToken(TokenType.AND);
+                    break;
+                case OR:
+                    setupCurrentToken(TokenType.OR);
+                    break;
+            }
+
+            node = new LogicalExpressionNode(node.getLeftNode(), token, getLogicalTerm());
+        }
+
+        return node;
     }
 
     private ConditionalStatementNode getConditionalStatement() {
@@ -565,7 +591,7 @@ public class Parser {
     private ProgramNode getProgram() {
 
         //
-        //      program : PROGRAM variable SEMICOLON block DOT
+        //      program : PROGRAM variable SEMICOLON block
         //
 
         setupCurrentToken(TokenType.PROGRAM);
@@ -575,9 +601,7 @@ public class Parser {
         setupCurrentToken(TokenType.SEMICOLON);
         BlockNode blockNode = getBlock();
 
-        ProgramNode programNode = new ProgramNode(programName, blockNode);
-        setupCurrentToken(TokenType.DOT);
-        return programNode;
+        return new ProgramNode(programName, blockNode);
     }
 
     public ProgramNode parseCommand() {

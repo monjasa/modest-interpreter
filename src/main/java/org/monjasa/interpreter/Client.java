@@ -2,7 +2,6 @@ package org.monjasa.interpreter;
 
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import com.intellij.uiDesigner.core.Spacer;
 import org.monjasa.interpreter.engine.interpreter.Interpreter;
 import org.monjasa.interpreter.engine.parser.Parser;
 import org.monjasa.interpreter.engine.lexer.Lexer;
@@ -16,7 +15,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.temporal.ValueRange;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -25,7 +23,7 @@ import java.util.TimerTask;
 public class Client {
 
     private static final int CELLS_IN_ROW = 9;
-    private static final int CELL_SIZE = 60;
+    private static final int CELL_SIZE = 80;
     private static final int GAP = 3;
 
     private JPanel mainPanel;
@@ -200,7 +198,7 @@ public class Client {
         entityPanel.setForeground(new Color(-15050988));
         mainPanel.add(entityPanel, new GridConstraints(0, 0, 3, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JScrollPane scrollPane1 = new JScrollPane();
-        mainPanel.add(scrollPane1, new GridConstraints(0, 1, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        mainPanel.add(scrollPane1, new GridConstraints(0, 1, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         commandArea = new JTextArea();
         Font commandAreaFont = this.$$$getFont$$$("Open Sans", -1, 12, commandArea.getFont());
         if (commandAreaFont != null) commandArea.setFont(commandAreaFont);
